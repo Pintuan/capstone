@@ -9,7 +9,7 @@ const LoginEmail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://13.211.183.92/auth/forgot-password", { email: email });
+      const response = await axios.post(window.host + "/auth/forgot-password", { email: email });
       console.log(response);
       setResponse(response.data.resp);
       setState("text-green-100");

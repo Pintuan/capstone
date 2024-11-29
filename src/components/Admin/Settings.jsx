@@ -28,7 +28,7 @@ const Home = () => {
         )
       );
       const response = await axios.post(
-        "http://13.211.183.92/auth/zxT10Rrshxb",
+        window.host+"/auth/zxT10Rrshxb",
         {
           hsdn2owet,
           fName,

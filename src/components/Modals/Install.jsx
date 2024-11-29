@@ -12,7 +12,7 @@ const Assign = ({ email, accountId, user_id }) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:7222/auth/install",
+        window.host+"/auth/install",
         {
           token: sessionStorage.getItem("user_id"),
           email: email,

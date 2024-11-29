@@ -14,7 +14,7 @@ const Approved = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:7222/auth/hjgsahdghahasdhasdnjansgdSAKNB",
+        window.host+"/auth/hjgsahdghahasdhasdnjansgdSAKNB",
         {
           i_tech,
           i_tl,

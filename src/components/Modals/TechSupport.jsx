@@ -40,7 +40,7 @@ const TechSupport = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:7222/auth/hjgsahdghasgdhgdahsgdSAKNB",
+        window.host+"/auth/hjgsahdghasgdhgdahsgdSAKNB",
         {
           contactNum,
           time,

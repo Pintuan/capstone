@@ -18,6 +18,7 @@ pool.connect(err => {
         return;
     } else {
         console.log('Connected to the PostgreSQL database');
+        console.log('Backend API Running');
     }
 });
 
@@ -32,6 +33,8 @@ const transporter = nodemailer.createTransport({
 // Function to query the database
 function queryDatabase(query, params) {
     if (params != null) {
+        console.log('running query : ' + query);
+        console.log('       params : ' + params);
         return new Promise((resolve, reject) => {
             pool.query(query, params, (error, results) => {
                 if (error) {
@@ -42,6 +45,7 @@ function queryDatabase(query, params) {
         });
     }
     else {
+        console.log('running query : ' + query);
         return new Promise((resolve, reject) => {
             pool.query(query, (error, results) => {
                 if (error) {
@@ -64,17 +68,21 @@ async function sendEmail(to, subject, message, html) {
 
     // Send the email
     try {
+        console.log('sending email to : '+ to);
+        console.log('         subject : '+ subject);
         const info = await transporter.sendMail(mailOptions);
         if (info) {
+            console.log('error sending Email : '+ info);
             return true;
         }
     } catch (error) {
+        console.log('Failed : '+error);
         return false;
     }
 }
 
 async function sendBill(bill_id) {
-    debugger;
+    console.log('sending Bill to Customer');
     const query = `select b.bill_id,p.payment_id,p.payment_date,pt.payment_name, b.due_date,b.ammount,b.ammount_paid, a.billing_address, u.email,
     CONCAT(u.first_name, ' ', u.last_name) as "fullName" from bill b 
 	inner join accounts a on b.bill_account_id = a.account_id
@@ -83,8 +91,10 @@ async function sendBill(bill_id) {
 	inner join paymentoption pt on pt.payment_id = p.payment_type
 	where b.bill_id = $1`;
     try {
+        console.log('executing query : \n' + query);
         const response = await queryDatabase(query, [bill_id]);
         if (response) {
+            console.log(response);
             const html = `
             <div className="bg-gray-100 text-gray-800 font-sans max-w-5xl mx-auto p-5 border border-gray-300 rounded-lg">
                  <div className="text-center mb-5">
@@ -149,6 +159,7 @@ async function sendBill(bill_id) {
                  </table>
                </div>`;
             console.log(response[0]);
+            console.log('sending Email to : '+ response[0].email);
             const emailsent = await sendEmail(response[0].email, "One-Konek E-Billing", html, html);
             if (emailsent) {
                 console.log("Email sent to : " + response[0].email);
@@ -176,11 +187,12 @@ async function getRestriction(accountId) {
             ON u.restriction = acc_type.restriction_id
             WHERE u.user_id = $1
         `;
+        console.log('executing query : \n' + query);
         const results = await queryDatabase(query, [accountId]);
 
         if (results.length === 0) {
             throw new Error('No user found');
-        }
+        }   
 
         const restrictionData = results[0];
         const hashedRestriction = await bcrypt.hash(restrictionData.position, 10);

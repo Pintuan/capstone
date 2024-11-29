@@ -11,7 +11,7 @@ const PaymentSettings = () => {
   const fetchData = async () => {
     try {
       const response = await axios.post(
-        "http://13.211.183.92/auth/getTransactions",
+        window.host+"/auth/getTransactions",
         {
           token: sessionStorage.getItem(
             "3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0"

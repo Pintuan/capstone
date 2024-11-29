@@ -9,7 +9,7 @@ import About from '../components/index/About';
 import Home from '../components/index/Home';
 import LoginEmail from '../components/index/LoginEmail';
 import LoginFP from '../components/index/LoginFP';
-import Downloads from '../components/index/SOA';
+import Downloads from '../components/index/Downloads';
 
 function Index() {
   return (

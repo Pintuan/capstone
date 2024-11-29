@@ -12,7 +12,7 @@ const Assign = (ticketId) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:7222/auth/solveTicket",
+        window.host+"/auth/solveTicket",
         {
           token: sessionStorage.getItem("user_id"),
           ticketId: ticketId.ticket_id,

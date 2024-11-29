@@ -22,7 +22,7 @@ const Settungs = () => {
         if (passConfirm) {
             setError(false);
             const hsdn2owet = sessionStorage.getItem(sessionStorage.getItem('3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0'));
-            const response = await axios.post('http://13.211.183.92/auth/zxT10Rrshxb', {
+            const response = await axios.post(window.host+'/auth/zxT10Rrshxb', {
                 hsdn2owet,
                 fName,
                 mName,

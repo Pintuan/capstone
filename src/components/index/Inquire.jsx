@@ -22,7 +22,7 @@ function Inquire() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const response = await axios.post(
-      "http://localhost:7222/auth/inquire",
+      window.host+"/auth/inquire",
       {
         fname: fname,
         mname: mname,

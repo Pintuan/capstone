@@ -31,6 +31,7 @@ pool.connect(err => {
         return;
     } else {
         console.log('Connected to the PostgreSQL database');
+        console.log('Server.js Init');
     }
 });
 
