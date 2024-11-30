@@ -5,6 +5,7 @@ import axios from "axios";
 
 function Customers() {
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -20,6 +21,7 @@ function Customers() {
         }
       );
       setCustomers(response.data);
+      setFilteredCustomers(response.data);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -29,14 +31,30 @@ function Customers() {
     fetchData();
   }, []);
 
+  const handleSearch = (event) => {
+    const searchValue = event.target.value;
+    setSearch(searchValue);
+    
+    // Filter rows based on the search term
+    const filtered = customers.filter(row => 
+      Object.values(row).some(value => 
+        value != null && // Check that value is not null or undefined
+        value.toString().toLowerCase().includes(searchValue.toLowerCase())
+      )
+    );
+    
+    setFilteredCustomers(filtered); // Update filtered data
+  };
+
+
   const renderData = [];
   let i = 0;
-  while (i < customers.length) {
-    if (customers[i].stat == 5522) {
+  while (i < filteredCustomers.length) {
+    if (filteredCustomers[i].stat == 5522) {
       renderData.push(
         <tr key={i}>
           <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-            {customers[i].account_id}
+            {filteredCustomers[i].account_id}
           </td>
           <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
             <div className="inline-flex items-center gap-x-3">
@@ -48,7 +66,7 @@ function Customers() {
                 />
                 <div>
                   <h2 className="font-medium text-gray-800 dark:text-white">
-                    {customers[i].fullName}
+                    {filteredCustomers[i].fullName}
                   </h2>
                 </div>
               </div>
@@ -59,20 +77,20 @@ function Customers() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
 
               <h2 className="text-sm font-normal text-emerald-500">
-                {customers[i].stat == 5522 ? "Active" : "Waiting for Installation"}
+                {filteredCustomers[i].stat == 5522 ? "Active" : "Waiting for Installation"}
               </h2>
             </div>
           </td>
           <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-            {customers[i].plan_name}
+            {filteredCustomers[i].plan_name}
           </td>
           <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-            {customers[i].billing_date}
+            {filteredCustomers[i].billing_date}
           </td>
 
           <td className="px-4 py-4 text-sm whitespace-nowrap">
             <div className="flex items-center gap-x-6">
-              <AcceptPayment id={customers[i].account_id} name={customers[i].fullName} />
+              <AcceptPayment id={filteredCustomers[i].account_id} name={filteredCustomers[i].fullName} />
             </div>
           </td>
         </tr>
@@ -87,7 +105,7 @@ function Customers() {
         <div className="flex h-screen overflow-hidden">
           <section className="container px-4 mx-auto">
             <div className="flex items-center gap-x-2">
-              <h1 className="mx-6 text-lg font-lg text-gray-800 dark:text-white font-bold">
+              <h1 className="my-6 mx-6 text-lg font-lg text-gray-800 dark:text-white font-bold">
                 Customers List
               </h1>
 
@@ -95,14 +113,12 @@ function Customers() {
                 {customers.length} user
               </span>
             </div>
-            <div>
+            <div className="px-4">
               <label htmlFor="search" className="block text-sm text-gray-500 dark:text-gray-300">Search</label>
-
-              <input id="search" onChange={(e) => { setSearch(e.target.value); fetchData(); }} type="text" className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
-
+              <input id="search" onChange={handleSearch} type="text" className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
               <p className="mt-3 text-xs text-gray-400 dark:text-gray-600">Search Specific Customers by Name</p>
             </div>
-            <div className="flex flex-col mt-6">
+            <div className="flex flex-col mt-2">
               <div className="px-3 mx-4 my-2 overflow-x-auto sm:mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-4 align-middle md:px-6 lg:px-8">
                   <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">

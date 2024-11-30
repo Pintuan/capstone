@@ -105,7 +105,6 @@ const Navbar = () => {
               {" "}
               Login
             </Link>
-
             <div>
               <ThemeToggle />
             </div>

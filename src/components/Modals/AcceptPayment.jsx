@@ -10,6 +10,7 @@ const AcceptPayment = ({ id, name, address }) => {
   const [bill_cleared, setBill_Cleared] = useState(false); // Modal visibility state
   const [message, setMessage] = useState("");
   const [totalPayment, setTotalPayment] = useState(0);
+  const [proratedAmmount, setProratedAmmount] = useState(0);
   let x = 0;
 
   const handleOpenBill_Cleared = () => {
@@ -66,7 +67,8 @@ const AcceptPayment = ({ id, name, address }) => {
             amount: paid[i],
             bill_id: bill[i].bill_id,
             stat: stat,
-            payment_type: 100000001
+            payment_type: 100000001,
+            prorated : proratedAmmount
           });
         setMessage(resp.message);
       } else {
@@ -154,7 +156,7 @@ const AcceptPayment = ({ id, name, address }) => {
                   <h1 className="truncate text-xl font-bold text-gray-800 dark:text-gray-200 ml-4 mr-4">
                     {name}
                   </h1>
-                  <div className="text-left bg-gray-700 h-20 rounded-lg">
+                  <div className="text-left bg-gray-100 dark:bg-gray-700 h-20 rounded-lg w-auto">
                     <h3 className="mt-2 ml-2 text-gray-800 dark:text-gray-200">
                       Address:
                     </h3>
@@ -221,7 +223,7 @@ const AcceptPayment = ({ id, name, address }) => {
                     </div>
                   </div>
                 </div>
-                <div className="p-4 items-center dark:border-gray-700">
+                <div className="px-5 py-3 items-center dark:border-gray-700">
                   <div className="flex items-end justify-start">
                     <h1 className="text-xl font-bold text-gray-800 dark:text-white mr-4 mb-2">
                       Total Amount: {x}
@@ -232,15 +234,20 @@ const AcceptPayment = ({ id, name, address }) => {
                       <p className="mt-3 text-xl text-red-400 dark:text-red-600">{message}</p>
                     </div>
                     <div className="flex items-center justify-center">
-                      <h1 className="text-xl font-bold text-gray-800 dark:text-white mr-4">
+                      <h1 className="text-xl mr-2 font-bold text-gray-800 dark:text-white mt-1">
+                        Prorated Ammount
+                      </h1>
+                      <input type="number" onChange={(e) => { proratedAmmount(e.target.value) }} max={x} className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-500 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <h1 className="text-xl mr-2 font-bold text-gray-800 dark:text-white mt-1">
                         Ammount Recieved
                       </h1>
-                      <input type="number" onChange={(e) => { payment(e.target.value) }} max={x} className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
-
+                      <input type="number" onChange={(e) => { payment(e.target.value) }} max={x} className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-500 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
                     </div>
                     <button
                       onClick={(e) => { payBill() }}
-                      className="px-4 py-4 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-700 rounded-lg hover:bg-blue-900 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
+                      className="ml-2 px-4 py-3 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-700 rounded-lg hover:bg-blue-900 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
                     >
                       Accept Payment
                     </button>

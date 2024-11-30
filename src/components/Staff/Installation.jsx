@@ -63,6 +63,10 @@ const Technician = () => {
       <td className="px-4 py-4 text-sm whitespace-nowrap">
         <div className="flex justify-center items-center">
           <Install email={requests.email} accountId={requests.user_id} user_id={requests.user_id} />
+          <button
+            className="ml-1 px-4 py-2 tracking-wide text-white capitalize transition-colors duration-300 transform bg-red-800 rounded-lg hover:bg-red-900 focus:outline-none focus:ring focus:ring-red-300 focus:ring-opacity-80">
+            Decline 
+          </button>
         </div>
       </td>
     </tr>
@@ -94,6 +98,7 @@ const Technician = () => {
                       Contact Number
                     </th>
                     <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      Mother's Maiden Name
                     </th>
                     <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       Address
@@ -101,7 +106,8 @@ const Technician = () => {
                     <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       Nearest Landmark
                     </th>
-                    <th></th>
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      Action</th>
                   </tr>
                 </thead>
                 <tbody className="content-center">

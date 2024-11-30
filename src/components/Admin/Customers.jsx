@@ -85,8 +85,8 @@ function Customers() {
       <div className="pl-4 w-full mx-auto">
         <div className="flex h-screen overflow-hidden">
           <section className="container px-4 mx-auto">
-            <div className="flex items-center gap-x-2">
-              <h1 className="mx-6 text-lg font-lg text-gray-800 dark:text-white font-bold">
+          <div className="flex items-center gap-x-2">
+              <h1 className="my-6 mx-6 text-lg font-lg text-gray-800 dark:text-white font-bold">
                 Customers List
               </h1>
 
@@ -94,14 +94,12 @@ function Customers() {
                 {customers.length} user
               </span>
             </div>
-            <div>
+            <div className="px-4">
               <label htmlFor="search" className="block text-sm text-gray-500 dark:text-gray-300">Search</label>
-
               <input id="search" onChange={(e) => { setSearch(e.target.value); fetchData(); }} type="text" className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
-
               <p className="mt-3 text-xs text-gray-400 dark:text-gray-600">Search Specific Customers by Name</p>
             </div>
-            <div className="flex flex-col mt-6">
+            <div className="flex flex-col mt-2">
               <div className="px-3 mx-4 my-2 overflow-x-auto sm:mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-4 align-middle md:px-6 lg:px-8">
                   <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">

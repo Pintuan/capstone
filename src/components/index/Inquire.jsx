@@ -39,7 +39,7 @@ function Inquire() {
     );
     setError(response.data.message);
     setTimeout(() => {
-      window.location.reload(); // Reloads the current page
+      alert(response.data.message) // Reloads the current page
     }, 3000)
   };
 

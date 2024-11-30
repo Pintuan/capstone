@@ -1,24 +1,21 @@
 import axios from "axios";
 import React, { useState } from "react";
 
-const Approved = () => {
+const Approved = ({ticketId}) => {
   const [i_error, seti_Error] = useState(null);
   const [i_showModal, seti_ShowModal] = useState(false);
-  const [i_tech, seti_Tech] = useState("");
-  const [i_tl, seti_TL] = useState("");
+  const [response, setResponse] = useState("");
   const [i_status, seti_Status] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(`Selected time: ${time.hour}:${time.minute} ${time.period}`);
-
     try {
-      const response = await axios.post(
-        window.host+"/auth/hjgsahdghahasdhasdnjansgdSAKNB",
+      const resp = await axios.post(
+        window.host+"/auth/soveTicketNow",
         {
-          i_tech,
-          i_tl,
-          i_status,
+          stat: i_status,
+          ticket_id: ticketId,
+          ticketResponse : response
         }
       );
       seti_ShowModal(false); // Close modal on successful submission
@@ -68,49 +65,17 @@ const Approved = () => {
                       <option value="" disabled>
                         Status
                       </option>
-                      <option value="Stat1">Completed</option>
-                      <option value="Stat2">Re-Schedule</option>
+                      <option value="11">Completed</option>
+                      <option value="12">Re-Schedule</option>
+                      <option value="21">Deny</option>
                     </select>
                   </div>
                   <div className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2">
                     <div>
                       <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">
-                        Team Leader
+                        response
                       </label>
-                      <select
-                        value={i_tl}
-                        onChange={(e) => seti_TL(e.target.value)}
-                        className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                      >
-                        <option value="" disabled>
-                          Select Team Leader
-                        </option>
-                        <option value="TL2">RAUL GONZALES</option>
-                        <option value="TL3">JAKE JARELLE CARLOS</option>
-                        <option value="TL4">ARMAN PEÑARANDA</option>
-                        <option value="TL5">CHRISTOPHER ALFONSO</option>
-                        <option value="TL6">Other:</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">
-                        Technician
-                      </label>
-                      <select
-                        value={i_tech}
-                        onChange={(e) => seti_Tech(e.target.value)}
-                        className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                      >
-                        <option value="" disabled>
-                          Select Tech
-                        </option>
-                        <option value="Tech1">JOEL FELIPE</option>
-                        <option value="Tech2">JAKE JARELLE CARLOS</option>
-                        <option value="Tech3">JAIME LUMPAYAO</option>
-                        <option value="Tech4">RAMON SOL CRUZ</option>
-                        <option value="Tech5">JOBERT VILLAFAÑA</option>
-                        <option value="Tech6">Other: </option>
-                      </select>
+                      <input value={response} onChange={(e) => {console.log(response); setResponse(e.target.value);}} type="text" />
                     </div>
                     {i_error && (
                       <p className="mt-4 text-red-600 dark:text-red-400 text-right">

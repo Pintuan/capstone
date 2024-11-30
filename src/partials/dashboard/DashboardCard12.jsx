@@ -46,20 +46,20 @@ function DashboardCard12() {
 
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-gray-800 shadow-sm rounded-xl">
-      <div className="p-3">
+      <div className="p-1">
         <table className="min-w-full w-full">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              <th className="py-3.5 px-4 text-base font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 User's Name
               </th>
-              <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              <th className="py-3.5 px-4 text-base font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 Date and Time
               </th>
-              <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              <th className="py-3.5 px-4 text-base font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 Action Taken
               </th>
-              <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              <th className="py-3.5 px-4 text-base font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 IP Address
               </th>
             </tr>

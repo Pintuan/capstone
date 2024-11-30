@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "../Modals/Solve";
 import Assign from "../Modals/Assign";
+import Approved from "../Modals/Approved";
 
 const Technician = () => {
   const [ticket, setTicket] = useState([]);
@@ -53,10 +54,12 @@ const Technician = () => {
           <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
             {ticket.ticket_description}
           </td>
-          <td className="px-4 py-4 text-sm whitespace-nowrap">
+          <td className="px-4 py-4 mr-2 text-sm whitespace-nowrap">
             <div className="flex justify-center items-center">
               <Assign ticket_id={ticket.ticked_id} />
+              <Approved ticketId={ticket.ticked_id}/>
             </div>
+
           </td>
         </tr>
       )
@@ -67,7 +70,7 @@ const Technician = () => {
       <div className="flex items-center gap-x-3">
         <div className="flex justify-end items-end">
           <h2 className="font-bold mx-10 pt-5 text-lg font-lg text-gray-800 dark:text-white">
-            Complain Tickets
+            Complaint Tickets
           </h2>
         </div>
       </div>
@@ -79,7 +82,7 @@ const Technician = () => {
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
                     <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      ticket ID
+                      Ticket ID
                     </th>
                     <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       Problem
@@ -88,6 +91,7 @@ const Technician = () => {
                       Description
                     </th>
                     <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      Action
                     </th>
                   </tr>
                 </thead>

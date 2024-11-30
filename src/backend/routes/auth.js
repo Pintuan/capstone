@@ -30,6 +30,33 @@ const transporter = nodemailer.createTransport({
         pass: process.env.MAILER_PASSWORD,
     },
 });
+async function createBill(account_id) {
+    const query = `select a.account_id,p.plan_price, a.billing_date, a.curr_plan from accounts a 
+    inner join plans p on a.curr_plan = p.plan_id
+    where a.user_id = $1`;
+    const resp = await queryDatabase(query, [account_id]);
+    console.log(resp);
+    if (resp) {
+        const create = `INSERT INTO public.bill(
+            bill_id, bill_account_id, due_date, ammount, plan, stat, ammount_paid)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+        const bill_id = await genId("bill", "bill_id", 165552317);
+        const date = new Date();
+        const due_date = date.getFullYear() + "-" + (date.getMonth() + 2) + "-" + resp[0].billing_date;
+        const insert = await queryDatabase(create, [bill_id, resp[0].account_id, due_date, resp[0].plan_price, resp[0].curr_plan, "76522", "0"]);
+        if (insert) {
+            return insert;
+        }
+        else {
+            console.log(resp);
+            return resp;
+        }
+    }
+    else {
+        console.log(resp);
+        return resp;
+    }
+}
 // Function to query the database
 function queryDatabase(query, params) {
     if (params != null) {
@@ -68,15 +95,15 @@ async function sendEmail(to, subject, message, html) {
 
     // Send the email
     try {
-        console.log('sending email to : '+ to);
-        console.log('         subject : '+ subject);
+        console.log('sending email to : ' + to);
+        console.log('         subject : ' + subject);
         const info = await transporter.sendMail(mailOptions);
         if (info) {
-            console.log('error sending Email : '+ info);
+            console.log('error sending Email : ' + info);
             return true;
         }
     } catch (error) {
-        console.log('Failed : '+error);
+        console.log('Failed : ' + error);
         return false;
     }
 }
@@ -159,7 +186,7 @@ async function sendBill(bill_id) {
                  </table>
                </div>`;
             console.log(response[0]);
-            console.log('sending Email to : '+ response[0].email);
+            console.log('sending Email to : ' + response[0].email);
             const emailsent = await sendEmail(response[0].email, "One-Konek E-Billing", html, html);
             if (emailsent) {
                 console.log("Email sent to : " + response[0].email);
@@ -192,7 +219,7 @@ async function getRestriction(accountId) {
 
         if (results.length === 0) {
             throw new Error('No user found');
-        }   
+        }
 
         const restrictionData = results[0];
         const hashedRestriction = await bcrypt.hash(restrictionData.position, 10);
@@ -246,7 +273,6 @@ async function verifyEmail(email) {
         throw error;
     }
 }
-
 // Function to generate a unique ID
 async function genId(table, field, length) {
     let isUnique = false;
@@ -262,9 +288,9 @@ async function genId(table, field, length) {
 // Function to insert log
 async function insertLog(userId, action, ipAddress) {
     const query = 'INSERT INTO systemlogs (log_id,user_id, time_date,action_taken, ip_address) VALUES  ($1, $2, $3, $4, $5)';
-
+    const id = await genId("systemlogs", "log_id", 123456789);
     // Execute the query with parameters
-    const resp = queryDatabase(query, [await genId("systemlogs", "log_id", 123456789), userId, new Date(), action, ipAddress]);
+    const resp = queryDatabase(query, [id, userId, new Date(), action, ipAddress]);
     console.log(resp);
 }
 
@@ -448,7 +474,7 @@ router.post('/inquire', async (req, res) => {
                 x = await queryDatabase(newAccountQuery, [null, plan, accountId, null, 6201, userId, mothersMaidenName, billing_address, landmark]);
                 if (x) {
 
-                    //x = insertLog(userId, "inquired", req.ip);
+                    x = insertLog(userId, "inquired", req.ip);
                     return res.status(200).send({ message: 'Success! we will send a confirmation message through your email address about your account status' });
                 }
                 else {
@@ -717,6 +743,7 @@ router.post('/paybill', async (req, res) => {
     const bill_id = req.body.bill_id;
     const bill_stat = req.body.stat;
     const paymentType = req.body.payment_type;
+    const prorated = req.body.prorated;
 
     if (authorizationToken) {
         let query = `UPDATE public.bill
@@ -729,7 +756,7 @@ router.post('/paybill', async (req, res) => {
             VALUES ($1, $2,$3, $4, $5, $6, $7);`;
             // payment type 100000003 = xendit; 
             //  100000002 = paymaya;
-            const paymentResp = await queryDatabase(query, [await genId("payments", "payment_id", 533421223888775), reciever, 0, amount, new Date(), paymentType, bill_id]);
+            const paymentResp = await queryDatabase(query, [await genId("payments", "payment_id", 533421223888775), reciever, prorated, amount, new Date(), paymentType, bill_id]);
             if (paymentResp) {
                 await insertLog(reciever, ("bill " + bill_id + " has been paid \n total paid : " + amount), req.ip);
                 const billsent = await sendBill(bill_id);
@@ -844,10 +871,13 @@ router.post('/install', async (req, res) => {
                 const password = await bcrypt.hash(accountId, 10);
                 const resp = await queryDatabase(newLogin, [email, password, user_id]);
                 if (resp) {
-                    const activationMail = await sendEmail(email, "One Konek Acoount Activation", "your Account has been activated use this password to login : " + accountId, "your Account has been activated use this password to login : " + accountId);
+                    const activationMail = await sendEmail(email, "One Konek Account Activation", "your Account has been activated use this password to login : " + accountId, "your Account has been activated use this password to login : " + accountId);
                     if (activationMail) {
-                        insertLog(authorizationToken, "Acoount " + accountId + "has been activated", req.ip);
-                        return res.json({ message: "Account Activated" });
+                        const createAccountBill = await createBill(accountId);
+                        if (createAccountBill) {
+                            const x = await insertLog(authorizationToken, "Acoount " + accountId + "has been activated", req.ip);
+                            return res.json({ message: "Account Activated" });
+                        }
                     }
                     else {
                         return res.json({ message: "Failed to send activation email" });
@@ -864,6 +894,37 @@ router.post('/install', async (req, res) => {
     } else {
         return res.status(401).json({ error: 'Unauthorized' });
     }
+});
+
+router.post('/soveTicketNow', async (req, res) => {
+    const ticket_status = req.body.stat;
+    const ticket_id = req.body.ticket_id;
+    const ticketResponse = req.body.ticketResponse;
+    const getTicket = `select u.email,ticked_id, t.ticket_title, t.ticket_description  from tickets t
+	inner join accounts a on t.account_id = a.account_id
+	inner join users u on a.user_id = u.user_id where ticked_id = $1`;
+    const resp = await queryDatabase(getTicket,[ticket_id]);
+    if (resp) {
+        const html = `To our Dear Customer,
+            this is to inform you that your concern Titled : `+ resp[0].ticket_title + `,
+            `+ticketResponse+`
+             `;
+        const sendmail = await sendEmail(resp[0].email, 'One Konek Ticket :' + ticket_id, html, html);
+        if (sendmail) {
+            const updateTicket = `UPDATE public.tickets
+                                        SET  stat=$1, resp = $2
+                                        WHERE ticked_id = $3`;
+            const response = await queryDatabase(updateTicket, [ticket_status,ticketResponse,ticket_id]);
+            if (response) {
+
+                return res.json({ message: "your response has been sent to customer" });
+            }
+        }
+        else {
+            return res.status(302).json({ sendmail });
+        }
+    }
+    else { return res.status(301).json({ resp }); }
 });
 
 router.post('/getLogs', async (req, res) => {
@@ -887,6 +948,11 @@ router.post('/getLogs', async (req, res) => {
     }
 });
 
+router.post('/declineInstallation', async(req, res) => {
+     const account_id = req.body.account_id;
+     const user_id = req.body.user_id;
+     
+})
 
 transporter.verify().then(console.log).catch(console.error);
 module.exports = router;

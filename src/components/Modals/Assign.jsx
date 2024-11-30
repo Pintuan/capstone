@@ -28,7 +28,7 @@ const Assign = (ticketId) => {
   return (
     <>
       <button
-        className="px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-green-800 rounded-lg hover:bg-green-900 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
+        className="px-4 py-2 mr-1 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-green-800 rounded-lg hover:bg-green-900 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
         type="button"
         onClick={() => setShowModal(true)}
       >
