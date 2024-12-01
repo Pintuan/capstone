@@ -15,7 +15,7 @@ import Staff from './pages/Staff';
 import Index from './pages/Index';
 
 window.host = 'http://localhost:7222';
-// window.host = 'http://13.211.183.92';
+//window.host = 'http://13.211.183.92';
 function App() {
   return (
     <div>

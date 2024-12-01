@@ -24,6 +24,7 @@ const Home = () => {
                     ),
                 }
             );
+            console.log(response.data);
             const x = response.data;
             setDates(x.map(x => x.total_paid));
             setDigits(x.map(x => x.payment_date));
@@ -54,7 +55,7 @@ const Home = () => {
                     {loading ? (
                         <DashboardCard01 title="Today" dates={dates} digits={digits} />
                     ) : (
-                        <DashboardCard01 title="This Month" dates={[123, 123, 13, 123, 123, 13, 123, 123, 123]} digits={[123, 123, 13, 123, 123, 13, 123, 123, 123]} />
+                        <DashboardCard01 title="This Month" dates={dates} digits={[123, 123, 13, 123, 123, 13, 123, 123, 123]} />
                     )}
 
                     {/* Line chart (Acme Advanced) */}

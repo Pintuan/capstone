@@ -16,13 +16,10 @@ const AcceptPayment = ({ account_id }) => {
 
   const getBills = async () => {
     try {
-      const response = await axios.post(
-        window.host + "/auth/getBillHistory",
-        {
-          authorizationToken: 105522,
-          customerId: account_id,
-        }
-      );
+      const response = await axios.post(window.host + "/auth/getBillHistory", {
+        authorizationToken: 105522,
+        customerId: account_id,
+      });
       setBill(response.data.data);
       console.log(response);
       setLoading(false);
@@ -56,20 +53,20 @@ const AcceptPayment = ({ account_id }) => {
   while (i < bill.length) {
     renderData.push(
       <tr key={i}>
-        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
-          {new Date(bill[i].due_date).toISOString().split('T')[0]}
+        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
+          {new Date(bill[i].due_date).toISOString().split("T")[0]}
         </td>
-        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
           {bill[i].bill_id}
         </td>
-        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
-        </td>
-        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap"></td>
+        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
           {bill[i].ammount}
         </td>
-        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
           {bill[i].ammount_paid}
-        </td><td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+        </td>
+        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
           {parseInt(bill[i].ammount) - parseInt(bill[i].ammount_paid)}
         </td>
       </tr>
@@ -105,12 +102,13 @@ const AcceptPayment = ({ account_id }) => {
                 >
                   ✕
                 </button>
-                <div className="bg-gray-100 text-gray-800 font-sans max-w-5xl mx-auto p-5 border border-gray-300 rounded-lg">
-                  {/* SOA1 */}
+                <div className="bg-gray-100 text-gray-800 font-sans max-w-6xl mx-auto p-5 border border-gray-300 rounded-lg max-h-screen overflow-y-auto">
                   <div className="flex justify-between items-center mb-5">
-
                     <div>
-                      <button onClick={handleExportPDF} className="mr-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                      <button
+                        onClick={handleExportPDF}
+                        className="mr-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
                         Download PDF
                       </button>
                     </div>
@@ -125,6 +123,13 @@ const AcceptPayment = ({ account_id }) => {
                     }}
                   >
                     <div className="mt-10 text-gray-800">
+                      <div className="flex justify-start items-start">
+                        <img
+                          src="onekonek logo_only.svg"
+                          alt="OneKonek Logo"
+                          className="w-16 h-16 object-cover rounded-md"
+                        />
+                      </div>
 
                       <div className="flex justify-between mb-5">
                         <div>
@@ -156,21 +161,31 @@ const AcceptPayment = ({ account_id }) => {
                           <div className="flex justify-between mb-5">
                             <div className="w-full">
                               <div className="bg-gray-300  rounded-md text-left">
-                                <h4 className="ml-2 font-semibold p-2">Account Summary</h4>
+                                <h4 className="ml-2 font-semibold p-2">
+                                  Account Summary
+                                </h4>
                               </div>
                               <table className="w-full border-collapse">
                                 <tbody>
                                   <tr>
-                                    <td className="px-3 py-2">Invoiced Amount</td>
-                                    <td className="px-3 py-2 text-right">PHP {invoicedAmmount}</td>
+                                    <td className="px-3 py-2">
+                                      Invoiced Amount
+                                    </td>
+                                    <td className="px-3 py-2 text-right">
+                                      PHP {invoicedAmmount}
+                                    </td>
                                   </tr>
                                   <tr>
                                     <td className="px-3 py-2">Amount Paid</td>
-                                    <td className="px-3 py-2 text-right">PHP {ammount_paid}</td>
+                                    <td className="px-3 py-2 text-right">
+                                      PHP {ammount_paid}
+                                    </td>
                                   </tr>
                                   <tr className="bg-gray-200">
                                     <td className="px-3 py-2">Balance Due</td>
-                                    <td className="px-3 py-2 text-right">PHP {invoicedAmmount - ammount_paid}</td>
+                                    <td className="px-3 py-2 text-right">
+                                      PHP {invoicedAmmount - ammount_paid}
+                                    </td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -178,29 +193,40 @@ const AcceptPayment = ({ account_id }) => {
                           </div>
                         </div>
                       </div>
-
                       <table className="w-full border-collapse border border-gray-300 mt-5">
                         <thead>
                           <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-3 py-2">Date</th>
-                            <th className="border border-gray-300 px-3 py-2">Transactions</th>
-                            <th className="border border-gray-300 px-3 py-2">Details</th>
-                            <th className="border border-gray-300 px-3 py-2">Amount</th>
-                            <th className="border border-gray-300 px-3 py-2">Payments</th>
-                            <th className="border border-gray-300 px-3 py-2">Balance</th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Date
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Transactions
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Details
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Amount
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Payments
+                            </th>
+                            <th className="border border-gray-300 px-3 py-2">
+                              Balance
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {loading ? (
                             <tr>
-                              <td colSpan="5" className="text-center">
+                              <td colSpan="6" className="text-center">
                                 Loading...
                               </td>
                             </tr>
                           ) : error ? (
                             <tr>
                               <td
-                                colSpan="5"
+                                colSpan="6"
                                 className="text-center text-red-600"
                               >
                                 {error}
@@ -210,7 +236,7 @@ const AcceptPayment = ({ account_id }) => {
                             renderData
                           ) : (
                             <tr>
-                              <td colSpan="5" className="text-center">
+                              <td colSpan="6" className="text-center">
                                 Nothing to Show
                               </td>
                             </tr>
@@ -222,7 +248,6 @@ const AcceptPayment = ({ account_id }) => {
                 </div>
               </div>
             </div>
-
           </div>
         </>
       )}

@@ -53,7 +53,7 @@ const Transactions = () => {
         <td scope="col" className="px-4 py-4 font-nunito">
           {transaction[i].rebate}
         </td>
-        <td scope="col" className="px-4 py-4 font-nunito">
+        <td scope="col" className="text-green-600 px-4 py-4 font-nunito">
           {transaction[i].total_paid}
         </td>
       </tr>
