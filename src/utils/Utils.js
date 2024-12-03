@@ -1,5 +1,5 @@
-import resolveConfig from 'tailwindcss/resolveConfig'
-import tailwindConfigFile from '@tailwindConfig'
+import tailwindConfigFile from '@tailwindConfig';
+import resolveConfig from 'tailwindcss/resolveConfig';
 
 export const tailwindConfig = () => {
   return resolveConfig(tailwindConfigFile)
@@ -32,3 +32,22 @@ export const formatThousands = (value) => Intl.NumberFormat('en-US', {
   maximumSignificantDigits: 3,
   notation: 'compact',
 }).format(value);
+
+
+// src/utils/Utils.js
+
+export function formatCurrency(value, locale = 'en-PH', currency = 'PHP') {
+  if (isNaN(value)) return value;
+  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value);
+}
+
+
+// src/utils/Utils.js
+
+export const chartAreaGradient = (ctx, chartArea, colorStops) => {
+  const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+  colorStops.forEach(stop => {
+    gradient.addColorStop(stop.stop, stop.color);
+  });
+  return gradient;
+};

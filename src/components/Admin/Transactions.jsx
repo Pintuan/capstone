@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import ExportTransactions from "../Modals/exportTransactions";
 
 const Transactions = () => {
   const [transaction, setTransactions] = useState([]); // Initial state as an array
@@ -71,7 +72,7 @@ const Transactions = () => {
           </h2>
         </div>
       </div>
-
+      <ExportTransactions />
       <div className="flex flex-col mt-6 place-items-center w-full">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 w-full">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8 text-center">

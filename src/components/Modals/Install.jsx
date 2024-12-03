@@ -31,7 +31,7 @@ const Assign = ({ email, accountId, user_id }) => {
   return (
     <>
       <button
-        className="px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-green-800 rounded-lg hover:bg-green-900 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
+        className="px-4 py-2 mr-1 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-green-800 rounded-lg hover:bg-green-900 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
         type="button"
         onClick={() => setShowModal(true)}
       >
@@ -56,7 +56,7 @@ const Assign = ({ email, accountId, user_id }) => {
                   ✕
                 </button>
               </div>
-              <div className="ml-2 max-w-6xl p-6 mx-auto bg-white dark:bg-gray-800 mt-4 overflow-y-auto max-h-[80vh] text-left">
+              <div className="max-w-6xl p-2 mx-auto bg-white dark:bg-gray-800 overflow-y-auto max-h-[80vh] text-left">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-3">
                     <div>
@@ -97,8 +97,7 @@ const Assign = ({ email, accountId, user_id }) => {
                     <div>
                       <label
                         htmlFor="billingDate"
-                        className="block text-left text-gray-700 font-medium mb-2"
-                      >
+                        className="block mb-2 text-sm text-gray-600 dark:text-gray-200">
                         Billing Date (1-28)
                       </label>
                       <input
@@ -109,7 +108,7 @@ const Assign = ({ email, accountId, user_id }) => {
                         max="28"
                         value={BillingDate}
                         onChange={(e) => setBillingDate(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                         placeholder="Select Billing Date"
                         required
                       />

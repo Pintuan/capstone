@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { Pool } = require("pg"); // Import pg Pool for PostgreSQL
 const router = express.Router();
 const nodemailer = require("nodemailer");
+const multer = require("multer");
 require("dotenv").config();
 const pool = new Pool({
   user: process.env.DATABASE_USERNAME,
@@ -42,12 +43,21 @@ async function createBill(account_id) {
             VALUES ($1, $2, $3, $4, $5, $6, $7)`;
     const bill_id = await genId("bill", "bill_id", 165552317);
     const date = new Date();
+    const currentDate = new Date(); // Assuming this is your current date object
+    const nextMonth = currentDate.getMonth() + 1; // Get next month (current month + 1)
+    const nextYear =
+      nextMonth === 12
+        ? currentDate.getFullYear() + 1
+        : currentDate.getFullYear();
+    const nextMonthNumber = nextMonth === 12 ? 1 : nextMonth; // If December, move to January
+
+    // Use resp[0].billing_date for the day (assuming it's a valid day in the month)
     const due_date =
-      date.getFullYear() +
+      nextYear +
       "-" +
-      (date.getMonth() + 2) +
+      String(nextMonthNumber).padStart(2, "0") +
       "-" +
-      resp[0].billing_date;
+      String(resp[0].billing_date).padStart(2, "0");
     const insert = await queryDatabase(create, [
       bill_id,
       resp[0].account_id,
@@ -93,7 +103,7 @@ function queryDatabase(query, params) {
     });
   }
 }
-async function sendEmail(to, subject, message, html) {
+async function sendEmail(to, subject, message, html, attachments) {
   // Mail options
   const mailOptions = {
     from: process.env.MAILER_USER, // Sender address
@@ -101,6 +111,7 @@ async function sendEmail(to, subject, message, html) {
     subject: subject, // Subject line
     text: message, // Plain text body
     html: html, // HTML body
+    attachments: attachments, // File attachments
   };
 
   // Send the email
@@ -270,7 +281,8 @@ async function checkUsername(username) {
   try {
     const query = "SELECT * FROM login WHERE username = $1";
     const results = await queryDatabase(query, [username]);
-    return results.length === 0;
+    if (results.length == 0) { return true; }
+    else { return false; }
   } catch (error) {
     throw error;
   }
@@ -329,7 +341,7 @@ async function insertLog(userId, action, ipAddress) {
   const resp = queryDatabase(query, [
     id,
     userId,
-    new Date(),
+    Date.now(),
     action,
     ipAddress,
   ]);
@@ -420,9 +432,6 @@ router.post("/login", async (req, res) => {
 
     const restriction = await getRestriction(user.account_id);
     const token = await bcrypt.hash(user.pass_word, 10);
-    //insertLog(await ('systemlogs', 'logId', 100000000), user.accountId, 'Login', req.headers['x-forwarded-for'] || req.connection.remoteAddress);
-
-    insertLog(user.account_id, "login", req.ip);
     return res.json({
       message: "Login successful",
       token: token,
@@ -436,70 +445,61 @@ router.post("/login", async (req, res) => {
 
 // Update login details
 router.post("/updateLoginDetails", async (req, res) => {
-  const { hsdn2owet, username, password, confPass, passConfirm } = req.body;
+  const { hsdn2owet, username, password, confPass } = req.body;
   try {
-    if (await verifyPassword(hsdn2owet, passConfirm)) {
-      const updates = [];
-      const values = [];
+    const updates = [];
+    const values = [];
+    updates.push("username = $1");
+    values.push(username);
 
-      if (await checkUsername(username)) {
-        updates.push("username = $1");
-        values.push(username);
-      } else {
-        return res.status(401).json({ error: "Username already exists" });
-      }
-
-      if (confPass === password) {
-        updates.push("pass_word = $2");
-        values.push(await bcrypt.hash(password, 10));
-      } else {
-        return res.status(401).json({ error: "New password does not match" });
-      }
-
-      const sql = `UPDATE login SET ${updates.join(
-        ", "
-      )} WHERE account_id = $3`;
-      await queryDatabase(sql, [values, hsdn2owet]);
-      res.send("User login details updated successfully!");
+    if (confPass === password) {
+      updates.push("pass_word = $2");
+      values.push(await bcrypt.hash(password, 10));
     } else {
-      res.status(401).json({ error: "Incorrect password confirmation" });
+      return res.status(401).json({ error: "New password does not match" });
     }
+
+    const sql = `UPDATE login SET ${updates.join(
+      ", "
+    )} WHERE account_id = $3`;
+    values.push(hsdn2owet);
+    await queryDatabase(sql, values);
+    res.send("User login details updated successfully!");
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Update user information
-router.post("/updateUserInfo", async (req, res) => {
-  const {
-    hsdn2owet,
-    fName,
-    mName,
-    lName,
-    contactNum,
-    email,
-    profilePic,
-    passConfirm,
-  } = req.body;
+router.post("/updateBillingAddress", async (req, res) => {
+  const { hsdn2owet, billing_address } = req.body;
   try {
     const updates = [];
     const values = [];
 
-    if (fName) updates.push("first_name = $1") && values.push(fName);
-    if (mName) updates.push("middle_name = $2") && values.push(mName);
-    if (lName) updates.push("last_name = $3") && values.push(lName);
-    if (contactNum) updates.push("contact_num = $4") && values.push(contactNum);
-    if (email) updates.push("email = $5") && values.push(email);
-    if (profilePic) updates.push("profilepic = $6") && values.push(profilePic);
+    if (billing_address)
+      updates.push("billing_address = $1") && values.push(billing_address);
+    values.push(hsdn2owet);
+    const sql = `UPDATE accounts SET billing_address = $1 WHERE user_id = $2`;
+    await queryDatabase(sql, values);
+    res.send("Billing Information updated successfully!");
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+// Update user information
+router.post("/updateUserInfo", async (req, res) => {
+  const { hsdn2owet, contactNum, email, passConfirm } = req.body;
+  try {
+    const updates = [];
+    const values = [];
 
-    if (await verifyPassword(hsdn2owet, passConfirm)) {
-      values.push(hsdn2owet);
-      const sql = `UPDATE users SET ${updates.join(", ")} WHERE user_id = $7`;
-      await queryDatabase(sql, values);
-      res.send("User information updated successfully!");
-    } else {
-      res.status(401).json({ error: "Incorrect password confirmation" });
-    }
+    if (contactNum) updates.push("contact_num = $1") && values.push(contactNum);
+    if (email) updates.push("email = $2") && values.push(email);
+
+    values.push(hsdn2owet);
+    const sql = `UPDATE users SET ${updates.join(", ")} WHERE user_id = $3`;
+    await queryDatabase(sql, values);
+    res.send("User information updated successfully!");
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -575,7 +575,6 @@ router.post("/inquire", async (req, res) => {
           landmark,
         ]);
         if (x) {
-          x = insertLog(userId, "inquired", req.ip);
           return res.status(200).send({
             message:
               "Success! we will send a confirmation message through your email address about your account status",
@@ -620,7 +619,7 @@ router.post("/getTransactions", async (req, res) => {
   debugger;
   const authorizationToken = req.body;
   const query = `
-        select p.payment_id,a.account_id, p.total_paid,p.rebate, pl.plan_name, p.bill_id,p.payment_date, b.due_date, CONCAT(u.first_name, ' ', u.last_name) as name 
+        select p.payment_id,p.payment_type,a.account_id, p.total_paid,p.rebate, pl.plan_name, p.bill_id,p.payment_date, b.due_date, CONCAT(u.first_name, ' ', u.last_name) as name 
         from payments p 
         left join users u on p.cashier_id = u.user_id
         inner join bill b on p.bill_id = b.bill_id
@@ -644,7 +643,6 @@ router.post("/getTransactions", async (req, res) => {
 
 router.post("/loadAccountDetails", async (req, res) => {
   const { authorizationToken, user_id } = req.body;
-  insertLog(user_id, "loaded Personal Account Information", req.ip);
   if (authorizationToken && user_id) {
     const query = `SELECT * FROM accounts a 
                         INNER JOIN users u ON a.user_id = u.user_id 
@@ -800,22 +798,16 @@ router.post("/getCustomers", async (req, res) => {
   const authorizationToken = req.body.token;
   const search = req.body.search;
 
-  const query =
-    `
-        SELECT accounts.account_id, 
-               CONCAT(users.first_name, ' ', users.last_name) AS "fullName",  
-               users.address, 
-               users.email,
-               plans.plan_name, 
-               accounts.billing_date, 
-               accounts.stat 
-        FROM users 
-        INNER JOIN accounts ON users.user_id = accounts.user_id 
-        INNER JOIN plans ON accounts.curr_plan = plans.plan_id
-		where CONCAT(users.first_name, ' ', users.last_name) LIKE '%` +
-    search +
-    `%'
-    `;
+  const query = `SELECT accounts.account_id,
+                CONCAT(users.first_name, ' ', users.last_name) AS "fullName",
+                users.address,
+                users.email,
+                plans.plan_name,
+                accounts.billing_date,
+                accounts.stat
+         FROM users
+         inner JOIN accounts ON users.user_id = accounts.user_id
+         left JOIN plans ON accounts.curr_plan = plans.plan_id`;
 
   if (authorizationToken) {
     try {
@@ -844,7 +836,6 @@ router.post("/sendTicket", async (req, res) => {
       desc,
     ]);
     if (updateResp) {
-      insertLog("", "Ticket " + ticketid + " has been sent", req.ip);
       return res.status(200).json({ message: "Ticket sent successfully" });
     }
   } else {
@@ -883,11 +874,6 @@ router.post("/paybill", async (req, res) => {
         bill_id,
       ]);
       if (paymentResp) {
-        await insertLog(
-          reciever,
-          "bill " + bill_id + " has been paid \n total paid : " + amount,
-          req.ip
-        );
         const billsent = await sendBill(bill_id);
         if (billsent) {
           return res.status(200).json({ message: "Payment successful" });
@@ -931,11 +917,6 @@ router.post("/solveTicket", async (req, res) => {
         ticketId,
       ]);
       if (results) {
-        await insertLog(
-          authorizationToken,
-          "Technician deployed to ticket " + ticketId,
-          req.ip
-        );
         return res.json({ message: "team has been deployed" });
       }
     } catch (error) {
@@ -948,7 +929,7 @@ router.post("/solveTicket", async (req, res) => {
 router.post("/installationRequests", async (req, res) => {
   const authorizationToken = req.body.token;
   if (authorizationToken) {
-    const query = `select concat(u.first_name,' ', u.last_name) as fullName,u.user_id, u.email,u.contact_num, a.mother_maiden_name,u.address, a.nearest_landmark
+    const query = `select concat(u.first_name,' ', u.last_name) as fullName,a.account_id,u.user_id, u.email,u.contact_num, a.mother_maiden_name,u.address, a.nearest_landmark
                         from users u 
                         inner join accounts a on u.user_id = a.user_id 
                         where a.stat = 6201`;
@@ -1011,18 +992,13 @@ router.post("/install", async (req, res) => {
             email,
             "One Konek Account Activation",
             "your Account has been activated use this password to login : " +
-              accountId,
+            accountId,
             "your Account has been activated use this password to login : " +
-              accountId
+            accountId
           );
           if (activationMail) {
             const createAccountBill = await createBill(accountId);
             if (createAccountBill) {
-              const x = await insertLog(
-                authorizationToken,
-                "Acoount " + accountId + "has been activated",
-                req.ip
-              );
               return res.json({ message: "Account Activated" });
             }
           } else {
@@ -1114,17 +1090,28 @@ router.post("/declineInstallation", async (req, res) => {
   try {
     const getInfo = `select * from accounts a 
     inner join users u on a.user_id = u.user_id
-    where a.account_id = $1`;
+    where u.user_id = $1`;
     const resp = await queryDatabase(getInfo, [account_id]);
     if (resp) {
       const query = `UPDATE public.accounts
 	SET  stat=$1
 	WHERE accounts.account_id = $2;`;
-      const updateAccount = await queryDatabase(query, [5462, account_id]);
+      const updateAccount = await queryDatabase(query, [
+        5462,
+        resp[0].account_id,
+      ]);
       if (updateAccount) {
         console.log(updateAccount);
-        const sendMail = await sendEmail(resp[0].email,"One Konek Installation Request",html,html);
-        return res.status(200).json({ message: "account has been successfully declined" });
+        const sendMail = await sendEmail(
+          resp[0].email,
+          "One Konek Installation Request",
+          html,
+          html
+        );
+        console.log(sendMail);
+        return res
+          .status(200)
+          .json({ message: "account has been successfully declined" });
       } else {
         console.log(updateAccount);
         return res.json({
@@ -1144,81 +1131,226 @@ router.post("/declineInstallation", async (req, res) => {
   }
 });
 
-router.post('/updatePlans', async(req, res) =>{
-    const authorizationToken = req.body.token;
-    const account_id = req.body.account_id;
-    const newPlan = req.body.plan;
-    if(authorizationToken){
-        const query = `SELECT * FROM users u 
+router.post("/updatePlans", async (req, res) => {
+  const authorizationToken = req.body.token;
+  const account_id = req.body.account_id;
+  const newPlan = req.body.plan;
+  const newPLanName = req.body.planName;
+  if (authorizationToken) {
+    const query = `SELECT * FROM users u 
         inner join accounts a on u.user_id = a.user_id
         where a.account_id = $1`;
-        try{
-            const results = await queryDatabase(query, [account_id]);
-            if(results){
-                const updateQuery = `UPDATE public.accounts SET curr_plan=$1 WHERE account_id=$2`;
-                try{
-                    const updateResponse = await queryDatabase(updateQuery, [newPlan, account_id]);
-                    if(updateResponse){
-                        const html = ``;
-                        const sendEmail = await sendEmail(results[0].email,"One Konek : Changing your Account Plans",html,html);
-                        return res.json({message: "plan updated successfully"});
-                    }else{
-                        console.log(updateResponse);
-                        return res.json({message: "there was a problem updating the plan"});
-                    }
-                }catch(error){
-                    console.log(error);
-                    return res.json({message: "there was a problem with the system, please contact your system administrator"});
-                }
-            }
-        }catch(error){
-            console.log(error);
-            return res.json({message: "there was a problem with the system, please contact your system administrator"});
+    try {
+      const results = await queryDatabase(query, [account_id]);
+      if (results) {
+        const updateQuery = `UPDATE public.accounts SET curr_plan=$1 WHERE account_id=$2`;
+        try {
+          const updateResponse = await queryDatabase(updateQuery, [
+            newPlan,
+            account_id,
+          ]);
+          if (updateResponse) {
+            const html =
+              `your request for change of Internet Plan has been Approved, You are now using : ` +
+              newPLanName;
+            const sendMail = await sendEmail(
+              results[0].email,
+              "One Konek : Changing your Account Plans",
+              html,
+              html
+            );
+            return res.json({ message: "plan updated successfully" });
+          } else {
+            console.log(updateResponse);
+            return res.json({
+              message: "there was a problem updating the plan",
+            });
+          }
+        } catch (error) {
+          console.log(error);
+          return res.json({
+            message:
+              "there was a problem with the system, please contact your system administrator",
+          });
         }
-    }else{
-        return res.status(401).json({error: "Unauthorized"});
-    }
-});
-
-router.post('/getCustomerTransaction', async(req, res) => {
-    const authorizationToken = req.body.token;
-    const account_id = req.body.account_id;
-    if(authorizationToken){
-      const query = `select * from bill b
- inner join plans p on b."plan" = p.plan_id
-	where b.bill_account_id = $1`;
-      try{
-        const results = await queryDatabase(query, [account_id]);
-        if(results){
-          return res.json({results});
-        }
-      }catch(error){
-        console.log(error);
-        return res.json({message: "there was a problem with the system, please contact your system administrator"});
       }
-    }
-    else
-    {
-      return res.status(401).json({error: "unauthorized"});
-    }
-});
-router.post('/getNotifications', async(req, res) => {
-  const authorizationToken = req.body.token;
-  if(authorizationToken){
-    const query = `select * from notif n inner join notif_type nt on n.notif_type = nt.notif_type_id`;
-    try{
-      const results = await queryDatabase(query);
-      if(results){
-        return res.json({results});
-      }
-    }catch(error){
+    } catch (error) {
       console.log(error);
-      return res.json({message: "there was a problem with the system, please contact your system administrator"});
+      return res.json({
+        message:
+          "there was a problem with the system, please contact your system administrator",
+      });
     }
-  }else{
-    return res.status(401).json({error: "Unauthorized"});
+  } else {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 });
 
+router.post("/getCustomerTransaction", async (req, res) => {
+  const authorizationToken = req.body.token;
+  const account_id = req.body.account_id;
+  if (authorizationToken) {
+    const query = `select b.*, p.plan_name from bill b
+ left join plans p on b."plan" = p.plan_id
+	where b.bill_account_id = $1
+  order by b.stat asc`;
+    try {
+      const results = await queryDatabase(query, [account_id]);
+      if (results) {
+        return res.json({ results });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        message:
+          "there was a problem with the system, please contact your system administrator",
+      });
+    }
+  } else {
+    return res.status(401).json({ error: "unauthorized" });
+  }
+});
+router.post("/getNotifications", async (req, res) => {
+  const authorizationToken = req.body.token;
+  if (authorizationToken) {
+    const query = `select * from notif n inner join notif_type nt on n.notif_type = nt.notif_type_id`;
+    try {
+      const results = await queryDatabase(query);
+      if (results) {
+        return res.json({ results });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        message:
+          "there was a problem with the system, please contact your system administrator",
+      });
+    }
+  } else {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+});
+router.post("/addNewNotification", async (req, res) => {
+  const authorizationToken = req.body.token;
+  const newNotif = req.body.newNotif;
+  if (authorizationToken) {
+    const query = `INSERT INTO public.notif(
+	notif_id, creator, notif_type, notif_body, notif_creation_date, notif_ending_date)
+	VALUES ($1, $2, $3, $4, $5, $6);`;
+    try {
+      const newNotifid = await genId('notif', 'notif_id', 999935123);
+      if (results) {
+        return res.json({ message: "Notification added successfully" });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        message:
+          "there was a problem with the system, please contact your system administrator",
+      });
+    }
+  } else {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+});
+
+router.post("/getNotifications", async (req, res) => {
+  const query = `SELECT * FROM notif n inner join notif_type nt on n.notif_type = nt.notif_type_id`;
+  const resp = await queryDatabase(query);
+  if (resp) {
+    return res.json({ resp });
+  } else {
+    console.log("error in getting notifications");
+    return res.status(400).json({ error: "Error in getting notifications" });
+  }
+});
+router.post("/newNotifications", async (req, res) => {
+  const creator = req.body.creator;
+  const type = req.body.type;
+  const body = req.body.body;
+  const start = req.body.start;
+  const end = req.body.end;
+  const query = `INSERT INTO public.notif(
+	notif_id, creator, notif_type, notif_body, notif_creation_date, notif_ending_date)
+	VALUES ($1, $2, $3, $4, $5, $6);`;
+  const notif_id = await genId("notif", "notif_id", 1234567890);
+  const resp = await queryDatabase(query, [
+    notif_id,
+    creator,
+    type,
+    body,
+    start,
+    end,
+  ]);
+  if (resp) {
+    return res.json({ message: "Notification added successfully" });
+  } else {
+    console.log("error in adding new notification");
+    return res.status(400).json({ error: "Error in adding new notification" });
+  }
+});
+
+const storage = multer.memoryStorage(); // Store files in memory as Buffer objects
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 100 * 1024 * 1024 }, // Limit file size to 10MB
+});
+
+router.post("/send-soa", upload.single("file"), async (req, res) => {
+  const email = req.body.email;
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded." });
+  }
+
+  if (!email) {
+    return res.status(400).json({ message: "No email provided." });
+  }
+
+  try {
+    // Configure your SMTP transporter
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", // e.g., Gmail, Outlook, etc.
+      auth: {
+        user: process.env.MAILER_USER,
+        pass: process.env.MAILER_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.MAILER_USER, // Sender address from environment variables
+      to: email, // List of receivers
+      subject: "Your Statement of Account (SOA)",
+      text: "Please find attached your Statement of Account.",
+      attachments: [
+        {
+          filename: file.originalname,
+          content: file.buffer, // Attach the file buffer directly
+          contentType: "application/pdf",
+        },
+      ],
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Email sent successfully." });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ message: "Error sending email." });
+  }
+});
+
+router.post("/getBills", async (req, res) => {
+  const query = `SELECT * FROM bill order by due_date asc`;
+  const resp = await queryDatabase(query);
+  if (resp) {
+    return res.json({ resp });
+  } else {
+    console.log("error in getting bills");
+    return res.status(400).json({ error: "Error in getting bills" });
+  }
+});
 transporter.verify().then(console.log).catch(console.error);
 module.exports = router;

@@ -237,7 +237,7 @@ const AcceptPayment = ({ id, name, address }) => {
                       <h1 className="text-xl mr-2 font-bold text-gray-800 dark:text-white mt-1">
                         Prorated Ammount
                       </h1>
-                      <input type="number" onChange={(e) => { proratedAmmount(e.target.value) }} max={x} className="mt-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-500 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
+                      <input type="number" onChange={(e) => { proratedAmmount(e.target.value) }} max={x} className="mt-2 mr-2 block w-full placeholder-gray-400/70 rounded-lg border border-gray-500 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300" />
                     </div>
                     <div className="flex items-center justify-center">
                       <h1 className="text-xl mr-2 font-bold text-gray-800 dark:text-white mt-1">

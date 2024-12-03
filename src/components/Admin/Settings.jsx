@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import axios from "axios";
+import React, { useState } from "react";
 
 const Home = () => {
   const [error, setError] = useState("");
@@ -89,30 +89,6 @@ const Home = () => {
 
             <form onSubmit={handlePersonalInfoSubmit}>
               <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-1">
-                <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="profilePic">Profile Photo</label>
-                    <img
-                      className="w-auto"
-                      src="namecard.png"
-                      alt="namecard.png"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      htmlFor="newProfile"
-                    >
-                      Upload file
-                    </label>
-                    <input
-                      onChange={(e) => setprofilePic(e.target.value)}
-                      id="newProfile"
-                      className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                      type="file"
-                    />
-                  </div>
-                </div>
                 <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-3">
                   <div>
                     <label

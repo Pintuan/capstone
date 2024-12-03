@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import DashboardCard06 from "../../partials/dashboard/DashboardCard06";
-import AcceptPayment from "../Modals/AcceptPayment";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import AcceptPayment from "../Modals/AcceptPayment";
 
 function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -47,7 +46,6 @@ function Customers() {
   const renderData = [];
   let i = 0;
   while (i < filteredCustomers.length) {
-    if (filteredCustomers[i].stat == 5522) {
       renderData.push(
         <tr key={i}>
           <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
@@ -56,55 +54,48 @@ function Customers() {
           <td className="text-center px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
             <div className="inline-flex items-center gap-x-3">
               <div className="flex items-center gap-x-2">
-                <img
-                  className="object-cover w-10 h-10 rounded-full"
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-                  alt=""
-                />
-                <div>
                   <h2 className="font-medium text-gray-800 dark:text-white">
                     {filteredCustomers[i].fullName}
                   </h2>
-                </div>
               </div>
             </div>
           </td>
           <td className="text-center px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
             <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              <span className={`h-1.5 w-1.5 rounded-full ${filteredCustomers[i].stat == 5522 ? "text-emerald-500": filteredCustomers[i].stat == 5462 ? "text-red-500" : "text-blue-500"}bg-emerald-500`}></span>
 
-              <h2 className="text-sm font-normal text-emerald-500">
+              <h2 className={`text-sm font-normal ${filteredCustomers[i].stat == 5522 ? "text-emerald-500": filteredCustomers[i].stat == 5462 ? "text-red-500" : "text-blue-500"}`}>
                 {filteredCustomers[i].stat == 5522
                   ? "Active"
-                  : "Waiting for Installation"}
+                  : filteredCustomers[i].stat == 5462 ? "Denied": "Waiting for Installation"}
               </h2>
             </div>
           </td>
           <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
             {filteredCustomers[i].plan_name}
           </td>
-          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+          <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
             {filteredCustomers[i].billing_date}
           </td>
 
-          <td className="px-4 py-4 text-sm whitespace-nowrap">
+          <td className="text-center px-4 py-4 text-sm whitespace-nowrap">
             <div className="flex items-center gap-x-6">
               <AcceptPayment
                 id={filteredCustomers[i].account_id}
                 name={filteredCustomers[i].fullName}
+                address={filteredCustomers[i].address}
               />
             </div>
           </td>
         </tr>
       );
-    }
     i++;
   }
 
   return (
     <main className="grow">
       <div className="pl-4 w-full mx-auto">
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex overflow-hidden">
           <section className="container px-4 mx-auto">
             <div className="flex items-center gap-x-2">
               <h1 className="my-6 mx-6 text-lg font-lg text-gray-800 dark:text-white font-bold">
@@ -136,7 +127,7 @@ function Customers() {
               <div className="px-3 mx-4 my-2 overflow-x-auto sm:mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-4 align-middle md:px-6 lg:px-8">
                   <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="overflow-y-auto">
                       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-50 dark:bg-gray-800">
                           <tr>
@@ -144,7 +135,7 @@ function Customers() {
                               scope="col"
                               className="py-3.5 px-4 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
                             >
-                              <div className="flex items-center gap-x-3">
+                              <div className="flex items-center justify-center gap-x-3">
                                 <span>Account Number</span>
                               </div>
                             </th>
@@ -152,16 +143,16 @@ function Customers() {
                               scope="col"
                               className="py-3.5 px-4 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
                             >
-                              <div className="flex items-center gap-x-3">
+                              <div className="flex items-center justify-center gap-x-3">
                                 <span>Name</span>
                               </div>
                             </th>
 
                             <th
                               scope="col"
-                              className="px-12 py-3.5 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
+                              className="py-3.5 text-sm font-normal text-center flex items-center justify-center rtl:text-right text-gray-500 dark:text-gray-400"
                             >
-                              <button className="flex items-center gap-x-2">
+                              <button className="flex items-center justify-center gap-2">
                                 <span>Status</span>
 
                                 <svg
@@ -247,4 +238,4 @@ function Customers() {
   );
 }
 
-export default Customers;
+export default Customers; 

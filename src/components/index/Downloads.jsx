@@ -78,7 +78,7 @@ const Downloads = () => {
 
           <div className="mb-8">
             <a
-              href="https://kmgrecuskcytplpqblbi.supabase.co/storage/v1/object/public/lacerase/onekonek-app.apk"
+              href="https://kmgrecuskcytplpqblbi.supabase.co/storage/v1/object/public/lacerase/onekonek.apk?t=2024-12-01T18%3A38%3A01.321Z"
               download
               className="flex items-center bg-blue-500 text-white py-3 px-8 rounded-lg shadow-lg hover:bg-blue-600 transition-all duration-300"
             >

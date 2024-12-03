@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "../Modals/Solve";
 import Install from "../Modals/Install";
+import DenyInstallation from "../Modals/DenyInstallation";
 
 const Technician = () => {
   const [requests, setRequests] = useState([]);
@@ -44,34 +45,31 @@ const Technician = () => {
       key={requests.user_id}
       className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
     >
-      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 break-words whitespace-normal">
         {requests.fullname}
       </td>
-      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 break-words whitespace-normal">
         {requests.email}
       </td>
-      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 break-words whitespace-normal">
         {requests.contact_num}
       </td>
-      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 break-words whitespace-normal">
         {requests.mother_maiden_name}
       </td>
-      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 break-words whitespace-normal">
         {requests.address}
       </td>
-      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 break-words whitespace-normal">
         {requests.nearest_landmark}
       </td>
-      <td className="px-4 py-4 text-sm whitespace-nowrap">
+      <td className="px-4 py-4 text-sm break-words whitespace-normal">
         <div className="flex justify-center items-center">
           <Install
             email={requests.email}
             accountId={requests.user_id}
             user_id={requests.user_id}
           />
-          <button className="ml-1 px-4 py-2 tracking-wide text-white capitalize transition-colors duration-300 transform bg-red-800 rounded-lg hover:bg-red-900 focus:outline-none focus:ring focus:ring-red-300 focus:ring-opacity-80">
-            Decline
-          </button>
         </div>
       </td>
     </tr>
@@ -93,25 +91,25 @@ const Technician = () => {
               <table className="min-w-full w-full table-fixed">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Full Name
                     </th>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Email
                     </th>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Contact Number
                     </th>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Mother's Maiden Name
                     </th>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Address
                     </th>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Nearest Landmark
                     </th>
-                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-4 text-base font-normal text-center text-gray-500 dark:text-gray-400 break-words">
                       Action
                     </th>
                   </tr>

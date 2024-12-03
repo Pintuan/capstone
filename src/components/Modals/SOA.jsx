@@ -1,22 +1,20 @@
-import React, { useState, useRef } from "react";
-
+import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import React, { useRef, useState } from "react";
 
-import axios from "axios";
-
-const AcceptPayment = ({ account_id }) => {
+const AcceptPayment = ({ account_id, email }) => { // Ensure 'email' is passed as a prop
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const [bill, setBill] = useState([]);
   const componentRef = useRef(); // Reference to the component
 
-  let x = 0;
-
   const getBills = async () => {
     try {
-      const response = await axios.post(window.host + "/auth/getBillHistory", {
+      setLoading(true);
+      setError("");
+      const response = await axios.post(`${window.host}/auth/getBillHistory`, {
         authorizationToken: 105522,
         customerId: account_id,
       });
@@ -25,66 +23,111 @@ const AcceptPayment = ({ account_id }) => {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setError("Failed to fetch bill history. Please try again later.");
+      setLoading(false);
     }
   };
 
   const handleExportPDF = async () => {
-    const element = componentRef.current; // Get the component DOM element
-    const canvas = await html2canvas(element); // Render the element to a canvas
-    const imgData = canvas.toDataURL("image/png"); // Get the image data from the canvas
-
-    const pdf = new jsPDF("p", "mm", "legal");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight); // Add the image to the PDF
-    pdf.save(account_id + "SOA" + Date.now() + ".pdf"); // Save the PDF
+    if (!componentRef.current) return; // Ensure the ref is attached
+  
+    try {
+      setLoading(true);
+      setError("");
+  
+      console.log("Generating PDF...");
+      const element = componentRef.current; // Get the component DOM element
+      const canvas = await html2canvas(element, { scale: 1 }); // Reduced scale factor
+      const imgData = canvas.toDataURL("image/jpeg", 0.8); // Use JPEG with 80% quality
+  
+      const pdf = new jsPDF("p", "mm", "A4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight); // Use JPEG format
+  
+      // Convert PDF to Blob
+      const pdfBlob = pdf.output("blob");
+  
+      // Create FormData and append the PDF Blob
+      const formData = new FormData();
+      formData.append("file", pdfBlob, `${account_id}_SOA_${Date.now()}.pdf`);
+      formData.append("email", email);
+  
+      console.log("Sending POST request to the server...");
+      // Send POST request to the server
+      const response = await axios.post(`${window.host}/auth/send-soa`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      console.log("Server response:", response);
+      // Handle the response from the server
+      if (response.status === 200) {
+        alert("PDF emailed successfully!");
+        setShowModal(false); // Optionally close the modal after success
+      } else {
+        alert("Failed to email PDF.");
+      }
+  
+      setLoading(false);
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      setError("An error occurred while exporting the PDF.");
+      setLoading(false);
+    }
   };
+  
 
-  useState();
   const renderData = [];
   const bill_id = [];
-  const paid = [bill.length];
   let i = 0;
-  let invoicedAmmount = 0;
-  let ammount_paid = 0;
+  let invoicedAmount = 0; // Corrected spelling
+  let amount_paid = 0; // Corrected spelling
   let fullName = "";
   let address = "";
   while (i < bill.length) {
     renderData.push(
-      <tr key={i}>
-        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
-          {new Date(bill[i].due_date).toISOString().split("T")[0]}
+      <tr
+        key={i}
+        className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}
+      >
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+          {new Date(bill[i].due_date).toLocaleDateString()}
         </td>
-        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
           {bill[i].bill_id}
         </td>
-        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap"></td>
-        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
-          {bill[i].ammount}
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+          {/* Add details here if available */}
+          N/A
         </td>
-        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
-          {bill[i].ammount_paid}
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+          PHP {Number(bill[i].ammount).toFixed(2)}
         </td>
-        <td className="px-4 py-4 text-sm text-center text-black-500 dark:text-black-300 whitespace-nowrap">
-          {parseInt(bill[i].ammount) - parseInt(bill[i].ammount_paid)}
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+          PHP {Number(bill[i].ammount_paid).toFixed(2)}
+        </td>
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+          PHP {(Number(bill[i].ammount) - Number(bill[i].ammount_paid)).toFixed(2)}
         </td>
       </tr>
     );
     bill_id.push(bill[i].bill_id);
-    x += parseInt(bill[i].ammount) - parseInt(bill[i].ammount_paid);
-    invoicedAmmount += parseInt(bill[i].ammount);
-    ammount_paid += parseInt(bill[i].ammount_paid);
-    fullName = bill[i].first_name + " " + bill[i].last_name;
+    invoicedAmount += Number(bill[i].ammount);
+    amount_paid += Number(bill[i].ammount_paid);
+    fullName = `${bill[i].first_name} ${bill[i].last_name}`;
     address = bill[i].address;
     i++;
   }
+
   return (
     <>
       <button
-        className="px-4 py-2 tracking-wide text-white capitalize transition-colors duration-300 transform bg-green-800 rounded-lg hover:bg-green-900 focus:outline-none focus:ring focus:ring-green-300 focus:ring-opacity-80"
+        className="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
         onClick={() => {
-          console.log("clicked");
+          console.log("View Statement of Account clicked");
           getBills();
           setShowModal(true);
         }}
@@ -92,164 +135,174 @@ const AcceptPayment = ({ account_id }) => {
         View Statement of Account
       </button>
       {showModal && (
-        <>
-          <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-black bg-opacity-50">
-            <div className="relative w-full max-w-6xl mx-4">
-              <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white dark:bg-gray-800 outline-none focus:outline-none">
-                <button
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                  onClick={() => setShowModal(false)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
+          <div className="relative w-full max-w-6xl mx-4">
+            <div className="border-0 rounded-lg shadow-lg flex flex-col w-full bg-white dark:bg-gray-800">
+              <button
+                className="absolute top-[26px] right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none border-[1px] border-gray-200 rounded-sm px-2 py-1"
+                onClick={() => setShowModal(false)}
+                aria-label="Close Modal"
+              >
+                ✕
+              </button>
+              <div className="p-6 overflow-y-auto max-h-screen">
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={handleExportPDF}
+                    className="mr-8 px-8 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+                    disabled={loading} // Disable button while loading
+                  >
+                    {loading ? "Processing..." : "Send PDF to Email"}
+                  </button>
+                </div>
+                <div
+                  ref={componentRef}
+                  className="p-8 bg-gray-100 border border-gray-300 rounded-lg"
                 >
-                  ✕
-                </button>
-                <div className="bg-gray-100 text-gray-800 font-sans max-w-6xl mx-auto p-5 border border-gray-300 rounded-lg max-h-screen overflow-y-auto">
-                  <div className="flex justify-between items-center mb-5">
+                  <div className="flex items-center mb-6">
+                    <img
+                      src="/onekonek logo_only.svg"
+                      alt="OneKonek Logo"
+                      className="w-20 h-20 object-cover rounded-md mr-4"
+                    />
                     <div>
-                      <button
-                        onClick={handleExportPDF}
-                        className="mr-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Download PDF
-                      </button>
+                      <h1 className="text-2xl font-bold text-gray-800">
+                        ONE-KONEK NETWORK AND DATA SOLUTION
+                      </h1>
+                      <p className="text-gray-600">Company ID: 001</p>
+                      <p className="text-gray-600">Tax ID: 343297890000</p>
+                      <p className="text-gray-600">0505 Purok 2 Looban</p>
+                      <p className="text-gray-600">Barangay Santa Elena</p>
+                      <p className="text-gray-600">
+                        Hagonoy Bulacan 3002, Philippines
+                      </p>
                     </div>
                   </div>
-                  <div
-                    ref={componentRef}
-                    style={{
-                      padding: "20px",
-                      backgroundColor: "#f0f0f0",
-                      border: "1px solid #ccc",
-                      marginTop: "20px",
-                    }}
-                  >
-                    <div className="mt-10 text-gray-800">
-                      <div className="flex justify-start items-start">
-                        <img
-                          src="onekonek logo_only.svg"
-                          alt="OneKonek Logo"
-                          className="w-16 h-16 object-cover rounded-md"
-                        />
-                      </div>
 
-                      <div className="flex justify-between mb-5">
-                        <div>
-                          <p>To</p>
-                          <p className="font-semibold">{fullName}</p>
-                          <p>{address}</p>
-                        </div>
-                        <div className="text-right">
-                          <h2 className="text-lg font-bold">
-                            ONE-KONEK NETWORK AND DATA SOLUTION
-                          </h2>
-                          <p>Company ID: 001</p>
-                          <p>Tax ID: 343297890000</p>
-                          <p>0505 Purok 2 Looban</p>
-                          <p>Barangay Santa Elena</p>
-                          <p>Hagonoy Bulacan 3002, Philippines</p>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end w-full">
-                        <div className="w-1/3">
-                          <h3 className="text-center text-xl font-bold mb-2">
-                            STATEMENT OF ACCOUNT
-                          </h3>
-                          <p className="text-right border-y border-y-gray-900 text-center mb-2">
-                            01 Jan 2024 To 31 Dec 2024
-                          </p>
-
-                          <div className="flex justify-between mb-5">
-                            <div className="w-full">
-                              <div className="bg-gray-300  rounded-md text-left">
-                                <h4 className="ml-2 font-semibold p-2">
-                                  Account Summary
-                                </h4>
-                              </div>
-                              <table className="w-full border-collapse">
-                                <tbody>
-                                  <tr>
-                                    <td className="px-3 py-2">
-                                      Invoiced Amount
-                                    </td>
-                                    <td className="px-3 py-2 text-right">
-                                      PHP {invoicedAmmount}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td className="px-3 py-2">Amount Paid</td>
-                                    <td className="px-3 py-2 text-right">
-                                      PHP {ammount_paid}
-                                    </td>
-                                  </tr>
-                                  <tr className="bg-gray-200">
-                                    <td className="px-3 py-2">Balance Due</td>
-                                    <td className="px-3 py-2 text-right">
-                                      PHP {invoicedAmmount - ammount_paid}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <table className="w-full border-collapse border border-gray-300 mt-5">
-                        <thead>
-                          <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-3 py-2">
-                              Date
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2">
-                              Transactions
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2">
-                              Details
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2">
-                              Amount
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2">
-                              Payments
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2">
-                              Balance
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {loading ? (
-                            <tr>
-                              <td colSpan="6" className="text-center">
-                                Loading...
-                              </td>
-                            </tr>
-                          ) : error ? (
-                            <tr>
-                              <td
-                                colSpan="6"
-                                className="text-center text-red-600"
-                              >
-                                {error}
-                              </td>
-                            </tr>
-                          ) : renderData.length > 0 ? (
-                            renderData
-                          ) : (
-                            <tr>
-                              <td colSpan="6" className="text-center">
-                                Nothing to Show
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
+                  <div className="flex justify-between mb-6">
+                    <div>
+                      <p className="text-gray-700">To:</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        {fullName}
+                      </p>
+                      <p className="text-gray-600">{address}</p>
                     </div>
+                    <div className="text-right">
+                      <h2 className="text-xl font-bold text-gray-800">
+                        STATEMENT OF ACCOUNT
+                      </h2>
+                      <p className="mt-2 text-gray-600">
+                        {new Date().toLocaleString("default", {
+                          month: "long",
+                        })}{" "}
+                        01, {new Date().getFullYear()} To{" "}
+                        {new Date().toLocaleString("default", {
+                          month: "long",
+                        })}{" "}
+                        31, {new Date().getFullYear()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="bg-gray-300 rounded-md p-4 mb-4">
+                      <h4 className="font-semibold text-gray-800">
+                        Account Summary
+                      </h4>
+                    </div>
+                    <table className="w-full table-auto">
+                      <tbody>
+                        <tr className="bg-white">
+                          <td className="px-4 py-2 text-gray-700">
+                            Invoiced Amount
+                          </td>
+                          <td className="px-4 py-2 text-right text-gray-700">
+                            PHP {invoicedAmount.toFixed(2)}
+                          </td>
+                        </tr>
+                        <tr className="bg-gray-50">
+                          <td className="px-4 py-2 text-gray-700">
+                            Amount Paid
+                          </td>
+                          <td className="px-4 py-2 text-right text-gray-700">
+                            PHP {amount_paid.toFixed(2)}
+                          </td>
+                        </tr>
+                        <tr className="bg-white">
+                          <td className="px-4 py-2 text-gray-700">
+                            Balance Due
+                          </td>
+                          <td className="px-4 py-2 text-right text-gray-700">
+                            PHP {(invoicedAmount - amount_paid).toFixed(2)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full table-auto border border-gray-300">
+                      <thead>
+                        <tr className="bg-gray-200">
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Date
+                          </th>
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Transactions
+                          </th>
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Details
+                          </th>
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Amount
+                          </th>
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Payments
+                          </th>
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Balance
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {loading ? (
+                          <tr>
+                            <td
+                              colSpan="6"
+                              className="px-4 py-6 text-center text-gray-600"
+                            >
+                              Loading...
+                            </td>
+                          </tr>
+                        ) : error ? (
+                          <tr>
+                            <td
+                              colSpan="6"
+                              className="px-4 py-6 text-center text-red-600"
+                            >
+                              {error}
+                            </td>
+                          </tr>
+                        ) : renderData.length > 0 ? (
+                          renderData
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan="6"
+                              className="px-4 py-6 text-center text-gray-600"
+                            >
+                              Nothing to Show
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
   );

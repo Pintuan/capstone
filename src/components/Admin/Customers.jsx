@@ -47,7 +47,6 @@ function Customers() {
   const renderData = [];
   let i = 0;
   while (i < filteredCustomers.length) {
-    if (filteredCustomers[i].stat == 5522) {
       renderData.push(
         <tr key={i}>
           <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
@@ -56,34 +55,27 @@ function Customers() {
           <td className="text-center px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
             <div className="inline-flex items-center gap-x-3">
               <div className="flex items-center gap-x-2">
-                <img
-                  className="object-cover w-10 h-10 rounded-full"
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-                  alt=""
-                />
-                <div>
                   <h2 className="font-medium text-gray-800 dark:text-white">
                     {filteredCustomers[i].fullName}
                   </h2>
-                </div>
               </div>
             </div>
           </td>
           <td className="text-center px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
             <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+            <span className={`h-1.5 w-1.5 rounded-full ${filteredCustomers[i].stat == 5522 ? "bg-emerald-500": filteredCustomers[i].stat == 5462 ? "bg-red-500" : "bg-blue-500"}`}></span>
 
-              <h2 className="text-sm font-normal text-emerald-500">
+              <h2 className={`text-sm font-normal ${filteredCustomers[i].stat == 5522 ? "text-emerald-500": filteredCustomers[i].stat == 5462 ? "text-red-500" : "text-blue-500"}`}>
                 {filteredCustomers[i].stat == 5522
                   ? "Active"
-                  : "Waiting for Installation"}
+                  : filteredCustomers[i].stat == 5462 ? "Denied": "Waiting for Installation"}
               </h2>
             </div>
           </td>
           <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
             {filteredCustomers[i].plan_name}
           </td>
-          <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+          <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
             {filteredCustomers[i].billing_date}
           </td>
 
@@ -91,12 +83,12 @@ function Customers() {
             <div className="flex items-center gap-x-6">
               <Soa
                 account_id={filteredCustomers[i].account_id}
+                email={filteredCustomers[i].email}
               />
             </div>
           </td>
         </tr>
       );
-    }
     i++;
   }
 
@@ -114,7 +106,7 @@ function Customers() {
                 {customers.length} user
               </span>
             </div>
-            <div className="px-4">
+            <div className="px-2">
               <label
                 htmlFor="search"
                 className="block text-sm text-gray-500 dark:text-gray-300"
@@ -141,24 +133,24 @@ function Customers() {
                           <tr>
                             <th
                               scope="col"
-                              className="py-3.5 px-4 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
+                              className="py-3.5 px-4 text-sm font-normal text-center rtl:text-center text-gray-500 dark:text-gray-400"
                             >
-                              <div className="flex items-center gap-x-3">
+                              <div className="flex items-center justify-center gap-x-3">
                                 <span>Account Number</span>
                               </div>
                             </th>
                             <th
                               scope="col"
-                              className="py-3.5 px-4 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
+                              className="py-3.5 px-4 text-sm font-normal text-center rtl:text-center text-gray-500 dark:text-gray-400"
                             >
-                              <div className="flex items-center gap-x-3">
+                              <div className="flex items-center justify-center gap-x-3">
                                 <span>Name</span>
                               </div>
                             </th>
 
                             <th
                               scope="col"
-                              className="px-12 py-3.5 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
+                              className="px-12 py-3.5 text-sm font-normal text-center flex items-center justify-center rtl:text-center text-gray-500 dark:text-gray-400"
                             >
                               <button className="flex items-center gap-x-2">
                                 <span>Status</span>
@@ -192,13 +184,13 @@ function Customers() {
                             </th>
                             <th
                               scope="col"
-                              className="px-4 py-3.5 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
+                              className="px-4 py-3.5 text-sm font-normal text-center rtl:text-center text-gray-500 dark:text-gray-400"
                             >
                               Current Plan
                             </th>
                             <th
                               scope="col"
-                              className="px-4 py-3.5 text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
+                              className="px-4 py-3.5 text-sm font-normal text-center rtl:text-center text-gray-500 dark:text-gray-400"
                             >
                               Billing Date
                             </th>

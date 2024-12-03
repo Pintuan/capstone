@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import {format} from "date-fns"
 
 function DashboardCard12() {
   const [logs, setLogs] = useState([]);
@@ -33,7 +34,7 @@ function DashboardCard12() {
         {logs.fullname}
       </td>
       <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
-        {logs.time_date}
+        {format(new Date(logs.time_date), "yyyy-MM-dd")}
       </td>
       <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
         {logs.action_taken}
@@ -54,7 +55,7 @@ function DashboardCard12() {
                 User's Name
               </th>
               <th className="py-3.5 px-4 text-base font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                Date and Time
+                Date
               </th>
               <th className="py-3.5 px-4 text-base font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 Action Taken

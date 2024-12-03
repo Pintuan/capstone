@@ -33,7 +33,6 @@ const Plans = () => {
   while (i < plans.length) {
     renderData.push(
       <tr key={plans[i].planId} className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
-        <td></td>
         <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{plans[i].plan_name}</td>
         <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{plans[i].plan_speed}</td>
         <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{plans[i].plan_price}</td>
@@ -70,9 +69,6 @@ const Plans = () => {
                 <table className="min-w-full w-full">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr className="bg-gray-50 dark:bg-gray-800">
-                      <th className="py-3.5 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400">
-                        Subscriber Count
-                      </th>
                       <th className="py-3.5 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400">
                         Plan Name
                       </th>

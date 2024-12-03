@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import axios from "axios";
+import React, { useState } from "react";
 
 function Inquire() {
   const queryParameters = new URLSearchParams(window.location.search);
@@ -39,7 +38,8 @@ function Inquire() {
     );
     setError(response.data.message);
     setTimeout(() => {
-      alert(response.data.message) // Reloads the current page
+      alert(response.data.message)
+      window.location.reload();
     }, 3000)
   };
 
@@ -68,6 +68,7 @@ function Inquire() {
                       type="text"
                       placeholder="John"
                       value={fname}
+                      required
                       onChange={(e) => setFname(e.target.value)}
                       className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                     />
@@ -80,6 +81,7 @@ function Inquire() {
                       type="text"
                       placeholder="Fitzgerald"
                       value={mname}
+                      required
                       onChange={(e) => setMname(e.target.value)}
                       className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                     />
@@ -92,6 +94,7 @@ function Inquire() {
                       type="text"
                       placeholder="Snow"
                       value={lname}
+                      required
                       onChange={(e) => setLname(e.target.value)}
                       className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                     />
@@ -106,6 +109,7 @@ function Inquire() {
                     value={mothersMaidenName}
                     onChange={(e) => setMothersMaidenName(e.target.value)}
                     placeholder=""
+                    required
                     className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
                 </div>
@@ -116,6 +120,7 @@ function Inquire() {
                   <input
                     type="date"
                     value={birthday}
+                    required
                     onChange={(e) => setBirthday(e.target.value)}
                     className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
@@ -133,6 +138,7 @@ function Inquire() {
                       type="text"
                       placeholder="9XX-XXX-XXXX"
                       value={contactNum}
+                      required
                       onChange={(e) => setContactNum(e.target.value)}
                       className="block w-full rounded-l-none rtl:rounded-l-lg rtl:rounded-r-none placeholder-gray-400/70 dark:placeholder-gray-500 rounded-lg border border-gray-400 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
                     />
@@ -146,6 +152,7 @@ function Inquire() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
                     placeholder="johnsnow@example.com"
                     className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
@@ -159,6 +166,7 @@ function Inquire() {
                       type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
+                      required
                       placeholder="123 sitio uno San Sebastian, Hagonoy, Bulacan"
                       className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                     />
@@ -173,6 +181,7 @@ function Inquire() {
                     type="text"
                     value={billing_address}
                     onChange={(e) => setBilling_Address(e.target.value)}
+                    required
                     placeholder="123 sitio uno San Sebastian, Hagonoy, Bulacan"
                     className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
@@ -186,6 +195,7 @@ function Inquire() {
                     type="text"
                     value={landmark}
                     onChange={(e) => setLandmark(e.target.value)}
+                    required
                     placeholder=""
                     className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-400 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />

@@ -15,6 +15,7 @@ import Settings from '../components/Admin/Settings';
 import PaymentSettings from '../components/Admin/PaymentSettings';
 import Staff from '../components/Admin/Staff';
 import Transactions from '../components/Admin/Transactions';
+import Notifications from '../components/Admin/Notifications';
 
 function Dashboard() {
 
@@ -37,6 +38,7 @@ function Dashboard() {
           <Route path='/Personal' element={<Settings />} />
           <Route path='/Staff' element={<Staff />} />
           <Route path='/Transactions' element={<Transactions />} />
+          <Route path='/Notifications' element={<Notifications />} />
           <Route path='/Customers' element={<Customers />} />
           <Route path='/Logs' element={<Logs />} />
         </Routes>

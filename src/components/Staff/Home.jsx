@@ -1,11 +1,42 @@
-import React, { useState } from 'react';
-import DashboardCard01 from '../../partials/dashboard/DashboardCard01';
-import DashboardCard02 from '../../partials/dashboard/DashboardCard02';
-import DashboardCard03 from '../../partials/dashboard/DashboardCard03';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import DashboardCard04 from '../../partials/dashboard/DashboardCard04';
 import DashboardCard05 from '../../partials/dashboard/DashboardCard05';
 
 function Home() {
+
+    const [bills, setBills] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchBillsData = async () => {
+        try {
+          const response = await axios.post(`${window.host}/auth/getBills`, {
+            token: sessionStorage.getItem('3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0')
+          });
+    
+          const rawBills = response.data.resp;
+    
+          const transformedBills = rawBills.map(bill => ({
+            bill_id: bill.bill_id,
+            bill_account_id: bill.bill_account_id,
+            due_date: bill.due_date,
+            amount: parseFloat(bill.ammount), // Corrected key and converted to number
+            plan: bill.plan,
+            stat: bill.stat,
+            amount_paid: parseFloat(bill.ammount_paid) // Corrected key and converted to number
+          }));
+    
+          setBills(transformedBills);
+        } catch (error) {
+          console.error('Error fetching bills data:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+    useEffect(() => {
+        fetchBillsData();
+    }, []);
 
     return (
         <main className="grow">
@@ -24,9 +55,7 @@ function Home() {
                 {/* Cards */}
                 <div className="grid grid-cols-12 gap-6">
                     {/* Bar chart (Direct vs Indirect) */}
-                    <DashboardCard04 />
-                    {/* Line chart (Real Time Value) */}
-                    <DashboardCard05 />
+                    <DashboardCard04 bills={bills}  />
                 </div>
 
             </div>

@@ -1,25 +1,34 @@
 import React from 'react';
-import LineChart from '../../charts/LineChart01';
 import { chartAreaGradient } from '../../charts/ChartjsConfig';
+import LineChart from '../../charts/LineChart01';
 
 // Import utilities
-import { tailwindConfig, hexToRGB } from '../../utils/Utils';
+import { hexToRGB, tailwindConfig } from '../../utils/Utils';
 
 function DashboardCard01({ title, dates, digits }) {
+  // Ensure data is valid to prevent rendering issues
+  const validDates = Array.isArray(dates) ? dates : [];
+  const validDigits = Array.isArray(digits) ? digits : [];
 
   const chartData = {
-    labels: dates,
+    labels: validDates,
     datasets: [
-      // Indigo line
       {
-        data: digits,
+        data: validDigits,
         fill: true,
         backgroundColor: function (context) {
           const chart = context.chart;
           const { ctx, chartArea } = chart;
+          if (!chartArea) return; // Prevent errors when chart area is not ready
           return chartAreaGradient(ctx, chartArea, [
-            { stop: 0, color: `rgba(${hexToRGB(tailwindConfig().theme.colors.violet[500])}, 0)` },
-            { stop: 1, color: `rgba(${hexToRGB(tailwindConfig().theme.colors.violet[500])}, 0.2)` }
+            {
+              stop: 0,
+              color: `rgba(${hexToRGB(tailwindConfig().theme.colors.violet[500])}, 0)`,
+            },
+            {
+              stop: 1,
+              color: `rgba(${hexToRGB(tailwindConfig().theme.colors.violet[500])}, 0.2)`,
+            },
           ]);
         },
         borderColor: tailwindConfig().theme.colors.violet[500],
@@ -32,7 +41,7 @@ function DashboardCard01({ title, dates, digits }) {
         pointHoverBorderWidth: 0,
         clip: 20,
         tension: 0.2,
-      }
+      },
     ],
   };
 
@@ -48,10 +57,24 @@ function DashboardCard01({ title, dates, digits }) {
           <div className="text-sm font-medium text-green-700 px-1.5 bg-green-500/20 rounded-full">+49%</div>
         </div>
       </div>
-      {/* Chart built with Chart.js 3 */}
+      {/* Chart section */}
       <div className="grow max-sm:max-h-[128px] xl:max-h-[128px]">
-        {/* Change the height attribute to adjust the chart height */}
-        <LineChart data={chartData} width={389} height={128} />
+      <LineChart
+  data={{
+    labels: ['Jan', 'Feb', 'Mar'],
+    datasets: [
+      {
+        data: [10, 20, 30],
+        borderColor: 'rgba(124, 58, 237, 1)',
+        backgroundColor: 'rgba(124, 58, 237, 0.2)',
+        tension: 0.2,
+      },
+    ],
+  }}
+  width={389}
+  height={128}
+/>
+
       </div>
     </div>
   );
