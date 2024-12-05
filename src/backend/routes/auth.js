@@ -961,6 +961,25 @@ router.post("/accountTicket", async (req, res) => {
   }
 });
 
+
+router.post('/ActivateAccount', async (req, res) => {
+  const auth = req.body.auth;
+  const account_id = req.body.account_id;
+  const newPassword = req.body.newPassword;
+
+  const pass = await bcrypt.hash(newPassword, 10);
+
+  const query = `UPDATE login SET password = ? WHERE account_id = ?`;
+
+  const resp = await queryDatabase(query, [pass, account_id]);
+  if (resp) {
+    return res.status(200).json({ message: "Password updated successfully" });
+  } else {
+    return res.status(400).json({ message: "Password update failed" });
+  }
+});
+
+
 router.post("/install", async (req, res) => {
   debugger;
   const authorizationToken = req.body.token;

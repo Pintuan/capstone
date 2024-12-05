@@ -51,10 +51,10 @@ const Transactions = () => {
           {new Date(transaction[i].payment_date).toISOString().split('T')[0]}
         </td>
         <td scope="col" className="px-4 py-4 font-nunito">
-          {transaction[i].rebate}
+          ₱ {transaction[i].rebate}.00
         </td>
         <td scope="col" className="text-green-600 px-4 py-4 font-nunito">
-          {transaction[i].total_paid}
+          ₱ {transaction[i].total_paid}.00
         </td>
       </tr>
 

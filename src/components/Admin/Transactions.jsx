@@ -10,14 +10,11 @@ const Transactions = () => {
   // Fetch data from the backend
   const fetchData = async () => {
     try {
-      const response = await axios.post(
-        window.host + "/auth/getTransactions",
-        {
-          token: sessionStorage.getItem(
-            "3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0"
-          ),
-        }
-      );
+      const response = await axios.post(window.host + "/auth/getTransactions", {
+        token: sessionStorage.getItem(
+          "3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0"
+        ),
+      });
       setTransactions(response.data);
       setLoading(false);
     } catch (error) {
@@ -46,19 +43,18 @@ const Transactions = () => {
           {transaction[i].plan_name}
         </td>
         <td scope="col" className="px-4 py-4 font-nunito">
-          {new Date(transaction[i].due_date).toISOString().split('T')[0]}
+          {new Date(transaction[i].due_date).toISOString().split("T")[0]}
         </td>
         <td scope="col" className="px-4 py-4 font-nunito">
-          {new Date(transaction[i].payment_date).toISOString().split('T')[0]}
+          {new Date(transaction[i].payment_date).toISOString().split("T")[0]}
         </td>
         <td scope="col" className="px-4 py-4 font-nunito">
           {transaction[i].rebate}
         </td>
         <td scope="col" className="text-green-600 px-4 py-4 font-nunito">
-          {transaction[i].total_paid}
+          ₱{transaction[i].total_paid}.00
         </td>
       </tr>
-
     );
     i++;
   }

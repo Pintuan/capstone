@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { chartAreaGradient } from '../../charts/ChartjsConfig';
 import LineChart from '../../charts/LineChart01';
 import DashboardCard04 from '../../partials/dashboard/DashboardCard04';
-import DashboardCard05 from '../../partials/dashboard/DashboardCard05';
+import DashboardCard06 from '../../partials/dashboard/DashboardCard06';
 import SummaryCard from '../../partials/SummaryCard';
 import { hexToRGB, tailwindConfig } from '../../utils/Utils';
 
@@ -21,6 +21,7 @@ import {
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [bills, setBills] = useState([]);
+  const [labels, setLabels] = useState(["San Sebastian", "Palapat", "Sta Elena"]);
   // States for Today
   const [todayTotal, setTodayTotal] = useState(0);
 
@@ -230,16 +231,16 @@ const Home = () => {
         </div>
 
         {/* Line Chart */}
-        <div className="flex justify-center w-full items-center gap-6 mb-4">
-          <div className="w-full bg-white dark:bg-gray-800 shadow-sm rounded-xl p-5">
+        <div className="flex col-2 justify-center  w-full items-center gap-6 mb-4">
+          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl p-5">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Monthly Sales</h2>
             {loading ? (
               <p className="text-center text-gray-500">Loading chart...</p>
             ) : Object.keys(monthlyTotals).length > 0 ? (
-              <div className="h-64 w-full">
+              <div className="h-64">
                 <LineChart
                   data={chartDataLine}
-                  width={600} 
+                  width={600}
                   height={400}
                 />
               </div>
@@ -247,16 +248,18 @@ const Home = () => {
               <p className="text-center text-gray-500">No data available for the chart.</p>
             )}
           </div>
-        </div>
-
-        {/* Other Dashboard Cards */}
-        <div className="w-full">
           {loading ? null : (
             <>
               <DashboardCard04 bills={bills} />
             </>
           )}
         </div>
+
+        {/* Other Dashboard Cards */}
+        <div className="w-full">
+
+        </div>
+
       </div>
     </main>
   );

@@ -44,7 +44,7 @@ function DashboardCard04({ bills }) {
 
   if (!bills || bills.length === 0) {
     return (
-      <div className="flex flex-col col-span-full sm:col-span-6 bg-white dark:bg-gray-800 shadow-sm rounded-xl p-5">
+      <div className="flex flex-col col-span sm:col-span-6 bg-white dark:bg-gray-800 shadow-sm rounded-xl p-5">
         <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
           <h2 className="font-semibold text-gray-800 dark:text-gray-100">Paid vs Unpaid</h2>
         </header>
@@ -75,7 +75,7 @@ function DashboardCard04({ bills }) {
               style={{ backgroundColor: tailwindConfig().theme.colors.green[500] }}
             ></span>
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Paid: ₱{totalPaid.toLocaleString()}
+              Paid: ₱{totalPaid.toLocaleString()}.00
             </span>
           </div>
           <div className="flex items-center">
@@ -84,7 +84,7 @@ function DashboardCard04({ bills }) {
               style={{ backgroundColor: tailwindConfig().theme.colors.red[500] }}
             ></span>
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Unpaid: ₱{totalUnpaid.toLocaleString()}
+              Unpaid: ₱{totalUnpaid.toLocaleString()}.00
             </span>
           </div>
         </div>
@@ -114,7 +114,7 @@ function DashboardCard04({ bills }) {
             <YAxis
               stroke={axisColor}
               tick={{ fontSize: 12, fill: tailwindConfig().theme.colors.gray[600] }}
-              tickFormatter={(value) => `₱${value.toLocaleString()}`}
+              tickFormatter={(value) => `₱${value.toLocaleString()}.00`}
             />
             <Tooltip
               contentStyle={{

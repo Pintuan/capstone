@@ -13,7 +13,7 @@ const Plans = () => {
   // Fetch data from the backend
   const fetchData = async () => {
     try {
-      const response = await axios.post(window.host+"/auth/getPlans", {
+      const response = await axios.post(window.host + "/auth/getPlans", {
         token: sessionStorage.getItem(
           "3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0"
         ),
@@ -35,7 +35,7 @@ const Plans = () => {
       <tr key={plans[i].planId} className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
         <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{plans[i].plan_name}</td>
         <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{plans[i].plan_speed}</td>
-        <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{plans[i].plan_price}</td>
+        <td className="py-4 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">₱ {plans[i].plan_price}.00</td>
         <td className="flex justify-center gap-2 py-4 px-4 whitespace-nowrap">
           <Select_Plan action="edit" plan_id={plans[i].planId} />
           {plans[i].stat == 16340 ? (

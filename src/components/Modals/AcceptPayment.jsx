@@ -68,9 +68,9 @@ const AcceptPayment = ({ id, name, address }) => {
             bill_id: bill[i].bill_id,
             stat: stat,
             payment_type: 100000001,
-            prorated : proratedAmmount
+            prorated: proratedAmmount
           });
-        setMessage(resp.message);
+        alert(resp.data.message);
       } else {
         break; // Stop distributing if payment is exhausted
       }
@@ -89,7 +89,7 @@ const AcceptPayment = ({ id, name, address }) => {
           {bill[i].bill_id}
         </td>
         <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
-          {bill[i].ammount}
+          ₱ {bill[i].ammount}.00
         </td>
         <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
           {new Date(bill[i].due_date).toISOString().split('T')[0]}
@@ -101,7 +101,7 @@ const AcceptPayment = ({ id, name, address }) => {
           <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>
             <h2 className="text-sm font-normal text-emerald-500">
-              {parseInt((bill[i].ammount)) - parseInt(bill[i].ammount_paid)}
+              ₱ {parseInt((bill[i].ammount)) - parseInt(bill[i].ammount_paid)}.00
             </h2>
           </div>
         </td>
@@ -226,7 +226,7 @@ const AcceptPayment = ({ id, name, address }) => {
                 <div className="px-5 py-3 items-center dark:border-gray-700">
                   <div className="flex items-end justify-start">
                     <h1 className="text-xl font-bold text-gray-800 dark:text-white mr-4 mb-2">
-                      Total Amount: {x}
+                      Total Amount: ₱ {x}.00
                     </h1>
                   </div>
                   <div className="flex items-end justify-end">

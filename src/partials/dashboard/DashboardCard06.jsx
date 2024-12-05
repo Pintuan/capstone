@@ -4,10 +4,10 @@ import DoughnutChart from '../../charts/DoughnutChart';
 // Import utilities
 import { tailwindConfig } from '../../utils/Utils';
 
-function DashboardCard06({ title, data }) {
+function DashboardCard06({ title, data, servers }) {
 
   const chartData = {
-    labels: ['San Sebastian', 'Palapat', 'Sta Elena'],
+    labels: servers,
     datasets: [
       {
         label: 'Locations',

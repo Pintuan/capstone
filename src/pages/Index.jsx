@@ -10,6 +10,7 @@ import Home from '../components/index/Home';
 import LoginEmail from '../components/index/LoginEmail';
 import LoginFP from '../components/index/LoginFP';
 import Downloads from '../components/index/Downloads';
+import Activation from '../components/index/Activate';
 
 function Index() {
   return (
@@ -23,6 +24,7 @@ function Index() {
         <Route path="/loginEmail" element={<LoginEmail />} />
         <Route path="/loginFP" element={<LoginFP />} />
         <Route path="/Downloads" element={<Downloads />} />
+        <Route path="/Activation" element={<Activation />} />
       </Routes>
     </div>
   );
