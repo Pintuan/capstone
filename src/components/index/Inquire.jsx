@@ -16,12 +16,16 @@ function Inquire() {
   const [birthday, setBirthday] = useState("");
   const [mothersMaidenName, setMothersMaidenName] = useState("");
   const [landmark, setLandmark] = useState("");
+  const [process, setProcess] = useState("Sign Up");
+  const [btnstate, setState] = useState(false);
 
 
   const handleSubmit = async (event) => {
+    setProcess("Submitting...");
+    setState(true);
     event.preventDefault();
     const response = await axios.post(
-      window.host+"/auth/inquire",
+      window.host + "/auth/inquire",
       {
         fname: fname,
         mname: mname,
@@ -201,8 +205,8 @@ function Inquire() {
                   />
                 </div>
 
-                <button className="px-4 py-3 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform  bg-blue-600 dark:bg-blue-700 rounded-lg dark:hover:bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 mt-3">
-                  <span className="text-center">Sign Up</span>
+                <button disabled={btnstate} className="px-4 py-3 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform  bg-blue-600 dark:bg-blue-700 rounded-lg dark:hover:bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 mt-3">
+                  <span className="text-center">{process}</span>
                 </button>
               </form>
             </div>

@@ -152,6 +152,7 @@ async function sendBill(bill_id) {
                      ONE-KONEK NETWORK AND DATA SOLUTION
                    </h2>
                    <p>Company ID: 001</p>
+                   <p>Receipt Number: ${bill_id}</p>
                    <p>Tax ID: 343297890000</p>
                    <p>
                      0029 MH Del Pilar, Barangay San Sebastian, Hagonoy Bulacan 3002,
@@ -281,8 +282,11 @@ async function checkUsername(username) {
   try {
     const query = "SELECT * FROM login WHERE username = $1";
     const results = await queryDatabase(query, [username]);
-    if (results.length == 0) { return true; }
-    else { return false; }
+    if (results.length == 0) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error) {
     throw error;
   }
@@ -459,9 +463,7 @@ router.post("/updateLoginDetails", async (req, res) => {
       return res.status(401).json({ error: "New password does not match" });
     }
 
-    const sql = `UPDATE login SET ${updates.join(
-      ", "
-    )} WHERE account_id = $3`;
+    const sql = `UPDATE login SET ${updates.join(", ")} WHERE account_id = $3`;
     values.push(hsdn2owet);
     await queryDatabase(sql, values);
     res.send("User login details updated successfully!");
@@ -619,12 +621,12 @@ router.post("/getTransactions", async (req, res) => {
   debugger;
   const authorizationToken = req.body;
   const query = `
-        select p.payment_id,p.payment_type,a.account_id, p.total_paid,p.rebate, pl.plan_name, p.bill_id,p.payment_date, b.due_date, CONCAT(u.first_name, ' ', u.last_name) as name 
-        from payments p 
-        left join users u on p.cashier_id = u.user_id
-        inner join bill b on p.bill_id = b.bill_id
-		inner join plans pl on b.plan = pl.plan_id
-        inner join accounts a on b.bill_account_id = a.account_id
+        select p.payment_id, b.stat, b.bill_account_id as "account_id", CONCAT(u.first_name, ' ', u.last_name) as "cashier",p.payment_type,p.payment_date,b.due_date, p.total_paid, pl.plan_name,p.rebate,b.bill_id  from bill b
+          left join payments p on b.bill_id = p.bill_id
+          left join users u on p.cashier_id = u.user_id
+          left join plans pl on b."plan" = pl.plan_id
+          where b.stat != 76522
+          order by p.payment_date desc
     `;
 
   if (authorizationToken) {
@@ -661,9 +663,9 @@ router.post("/loadAccountDetails", async (req, res) => {
 router.post("/getCustomerBills", async (req, res) => {
   const { authorizationToken, customerId } = req.body;
   const query = `
-        select * from bill b
+        select b.*, p.plan_name,p.plan_name,p.plan_speed,p.plan_price from bill b
  inner join plans p on b."plan" = p.plan_id
-	where b.bill_account_id = $1 and b.stat = 76522
+	where b.bill_account_id = $1 and b.stat != 76523
     `;
 
   if (authorizationToken) {
@@ -960,16 +962,13 @@ router.post("/accountTicket", async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
 });
-
-
-router.post('/ActivateAccount', async (req, res) => {
-  const auth = req.body.auth;
+router.post("/ActivateAccount", async (req, res) => {
   const account_id = req.body.account_id;
   const newPassword = req.body.newPassword;
 
   const pass = await bcrypt.hash(newPassword, 10);
 
-  const query = `UPDATE login SET password = ? WHERE account_id = ?`;
+  const query = `UPDATE login SET pass_word = $1 WHERE account_id = $2`;
 
   const resp = await queryDatabase(query, [pass, account_id]);
   if (resp) {
@@ -978,8 +977,6 @@ router.post('/ActivateAccount', async (req, res) => {
     return res.status(400).json({ message: "Password update failed" });
   }
 });
-
-
 router.post("/install", async (req, res) => {
   debugger;
   const authorizationToken = req.body.token;
@@ -1009,11 +1006,39 @@ router.post("/install", async (req, res) => {
         if (resp) {
           const activationMail = await sendEmail(
             email,
-            "One Konek Account Activation",
-            "your Account has been activated use this password to login : " +
-            accountId,
-            "your Account has been activated use this password to login : " +
-            accountId
+            "One Konek Account Activation", `
+            Your account has been activated, use this password to login 
+
+            Password : ${accountId}
+            `,
+            `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <body class="bg-gray-100">
+        <div class="max-w-lg mx-auto mt-10 bg-white border border-gray-300 rounded-lg shadow-lg">
+          <div class="bg-green-500 text-white text-center py-4 rounded-t-lg">
+            <h1 class="text-xl font-bold">One Konek Account Activation</h1>
+          </div>
+          <div class="p-6 text-gray-700">
+            <p class="mb-4">Dear User,</p>
+            <p class="mb-4">Your account has been successfully created. Click the Button below to Proceed:</p>
+            <a href="http://13.211.183.92/Activation?token=${user_id}" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-md font-bold text-sm uppercase">
+              <button>Activate</Button>
+            </a>
+            <p class="mb-6 px-4 py-2 bg-gray-100 border border-gray-300 rounded-md font-mono text-lg underline text-blue-500">${user_id}</p>
+            <p class="mb-4">For your security, we recommend changing your password after logging in.</p>
+            <p>Thank you for choosing One Konek!</p>
+          </div>
+          <div class="bg-gray-100 text-center py-4 rounded-b-lg text-sm text-gray-500">
+            &copy; 2024 One Konek. All rights reserved.
+          </div>
+        </div>
+      </body>
+      </html>
+      `
           );
           if (activationMail) {
             const createAccountBill = await createBill(accountId);
@@ -1021,10 +1046,10 @@ router.post("/install", async (req, res) => {
               return res.json({ message: "Account Activated" });
             }
           } else {
-            return res.json({ message: "Failed to send activation email" });
+            return res.json({ message: "Failed to send Activation Email" });
           }
         } else {
-          return res.json({ message: "cannot activate account" });
+          return res.json({ message: "Cannot Activate Account" });
         }
       }
     } catch (error) {
@@ -1034,7 +1059,6 @@ router.post("/install", async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
 });
-
 router.post("/soveTicketNow", async (req, res) => {
   const ticket_status = req.body.stat;
   const ticket_id = req.body.ticket_id;
@@ -1078,7 +1102,6 @@ router.post("/soveTicketNow", async (req, res) => {
     return res.status(301).json({ resp });
   }
 });
-
 router.post("/getLogs", async (req, res) => {
   debugger;
   const authorizationToken = req.body.token;
@@ -1099,7 +1122,6 @@ router.post("/getLogs", async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
 });
-
 router.post("/declineInstallation", async (req, res) => {
   const account_id = req.body.account_id;
   const reason = req.body.reason;
@@ -1130,7 +1152,7 @@ router.post("/declineInstallation", async (req, res) => {
         console.log(sendMail);
         return res
           .status(200)
-          .json({ message: "account has been successfully declined" });
+          .json({ message: "Unfortunately, your account has been declined." });
       } else {
         console.log(updateAccount);
         return res.json({
@@ -1257,7 +1279,7 @@ router.post("/addNewNotification", async (req, res) => {
 	notif_id, creator, notif_type, notif_body, notif_creation_date, notif_ending_date)
 	VALUES ($1, $2, $3, $4, $5, $6);`;
     try {
-      const newNotifid = await genId('notif', 'notif_id', 999935123);
+      const newNotifid = await genId("notif", "notif_id", 999935123);
       if (results) {
         return res.json({ message: "Notification added successfully" });
       }
@@ -1369,6 +1391,68 @@ router.post("/getBills", async (req, res) => {
   } else {
     console.log("error in getting bills");
     return res.status(400).json({ error: "Error in getting bills" });
+  }
+});
+router.post("/verifyPayment", async (req, res) => {
+  try {
+    const authorizationToken = req.body.token;
+    const bill_id = req.body.bill_id;
+    const user_id = req.body.user_id;
+    if (authorizationToken) {
+      const query = `UPDATE public.bill
+                      SET stat=76523
+                      WHERE bill_id = $1`;
+
+      const result = await queryDatabase(query, [bill_id]);
+      if (result) {
+        return res.json({ message: "payment verified successfully" });
+      } else {
+        console.log("Error updating bill status");
+        return res.status(400).json({ error: "Error updating bill status" });
+      }
+    } else {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+  } catch (error) {
+    return res.status(402).json({ error });
+  }
+});
+router.post("/getUpaid", async (req, res) => {
+  const authorizationToken = req.body.token;
+  if (authorizationToken) {
+    const query = `select b.bill_id, concat(u.first_name, ' ', u.last_name) as "customer", a.billing_address, p.plan_name, b.due_date, b.ammount from bill b
+                left join accounts a on b.bill_account_id = a.account_id
+                left join plans p on b."plan" = p.plan_id
+                inner join users u on a.user_id = u.user_id
+                where b.stat = 76522
+                order by b.due_date desc`;
+    const resp = await queryDatabase(query);
+    if (resp) {
+      return res.json({ resp });
+    } else {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+  }
+});
+router.post("/exportCustomers", async (req, res) => {
+  const query = `SELECT accounts.account_id,
+                CONCAT(users.first_name, ' ', users.last_name) AS "fullName",
+                users.address,
+                users.email,
+                accounts.billing_date,
+                accounts.stat,
+                SUM(b.ammount) as "Payables",
+                SUM(b.ammount_paid) as "Paid"
+                FROM users
+                INNER JOIN accounts ON users.user_id = accounts.user_id
+                LEFT JOIN bill b ON accounts.account_id = b.bill_account_id
+                group by accounts.account_id,users.first_name,users.last_name,users.address,users.email,accounts.billing_date`;
+  const resp = await queryDatabase(query);
+  if (resp) {
+    return res.json({ resp });
+  }
+  else {
+    return res.status(400).json({ error: "Error in getting Customers Details" });
   }
 });
 transporter.verify().then(console.log).catch(console.error);

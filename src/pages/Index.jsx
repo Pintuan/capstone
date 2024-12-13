@@ -22,7 +22,6 @@ function Index() {
         <Route path="/login" element={<Login />} />
         <Route path="/about" element={<About />} />
         <Route path="/loginEmail" element={<LoginEmail />} />
-        <Route path="/loginFP" element={<LoginFP />} />
         <Route path="/Downloads" element={<Downloads />} />
         <Route path="/Activation" element={<Activation />} />
       </Routes>

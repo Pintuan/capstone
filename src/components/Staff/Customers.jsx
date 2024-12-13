@@ -8,6 +8,7 @@ function Customers() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [filters, setFilters] = useState({ '6201': false, '5522': true, '5462': false });
   const fetchData = async () => {
     try {
       const response = await axios.post(window.host + "/auth/getCustomers", {
@@ -43,54 +44,22 @@ function Customers() {
     setFilteredCustomers(filtered); // Update filtered data
   };
 
-  const renderData = [];
-  let i = 0;
-  while (i < filteredCustomers.length) {
-      renderData.push(
-        <tr key={i}>
-          <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-            {filteredCustomers[i].account_id}
-          </td>
-          <td className="text-center px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-            <div className="inline-flex items-center gap-x-3">
-              <div className="flex items-center gap-x-2">
-                  <h2 className="font-medium text-gray-800 dark:text-white">
-                    {filteredCustomers[i].fullName}
-                  </h2>
-              </div>
-            </div>
-          </td>
-          <td className="text-center px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-            <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
-              <span className={`h-1.5 w-1.5 rounded-full ${filteredCustomers[i].stat == 5522 ? "text-emerald-500": filteredCustomers[i].stat == 5462 ? "text-red-500" : "text-blue-500"}bg-emerald-500`}></span>
+  const filteredData = Object.values(filters).some(Boolean)
+    ? filteredCustomers.filter(item => filters[item.stat])
+    : filteredCustomers;
 
-              <h2 className={`text-sm font-normal ${filteredCustomers[i].stat == 5522 ? "text-emerald-500": filteredCustomers[i].stat == 5462 ? "text-red-500" : "text-blue-500"}`}>
-                {filteredCustomers[i].stat == 5522
-                  ? "Active"
-                  : filteredCustomers[i].stat == 5462 ? "Denied": "Waiting for Installation"}
-              </h2>
-            </div>
-          </td>
-          <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-            {filteredCustomers[i].plan_name}
-          </td>
-          <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-            {filteredCustomers[i].billing_date}
-          </td>
+  const toggleFilter = (status) => {
+    if (status === '5462') {
+      setFilters({ '5462': true, '5522': false, '6201': false });
+    }
+    else if (status === '5522') {
+      setFilters({ '5462': false, '5522': true, '6201': false });
+    }
+    else if (status === '6201') {
+      setFilters({ '5462': false, '5522': false, '6201': true });
+    }
 
-          <td className="text-center px-4 py-4 text-sm whitespace-nowrap">
-            <div className="flex items-center gap-x-6">
-              <AcceptPayment
-                id={filteredCustomers[i].account_id}
-                name={filteredCustomers[i].fullName}
-                address={filteredCustomers[i].address}
-              />
-            </div>
-          </td>
-        </tr>
-      );
-    i++;
-  }
+  };
 
   return (
     <main className="grow">
@@ -125,6 +94,26 @@ function Customers() {
             </div>
             <div className="flex flex-col mt-2">
               <div className="px-3 mx-4 my-2 overflow-x-auto sm:mx-6 lg:-mx-8">
+                <div className="ml-8 inline-block bg-white border divide-x rounded-lg  dark:bg-gray-900 dark:border-gray-700 dark:divide-gray-700">
+                  <button
+                    onClick={() => {
+                      toggleFilter('5522');
+                    }}
+                    className=" px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 sm:text-base sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
+                    Active
+                  </button>
+                  <button
+                    onClick={() => toggleFilter('6201')}
+                    className="px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 sm:text-base sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
+                    Waiting for Installation
+                  </button>
+
+                  <button
+                    onClick={() => toggleFilter('5462')}
+                    className="px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 sm:text-base sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
+                    Denied
+                  </button>
+                </div>
                 <div className="inline-block min-w-full py-4 align-middle md:px-6 lg:px-8">
                   <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
                     <div className="overflow-y-auto">
@@ -215,8 +204,53 @@ function Customers() {
                                 {error}
                               </td>
                             </tr>
-                          ) : renderData.length > 0 ? (
-                            renderData
+                          ) : filteredData.length > 0 ? (
+                            filteredData.map(item => (
+                              <tr key={item.account_id}>
+                                <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                                  {item.account_id}
+                                </td>
+                                <td className="text-center px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                                  <div className="inline-flex items-center gap-x-3">
+                                    <div className="flex items-center gap-x-2">
+                                      <h2 className="font-medium text-gray-800 dark:text-white">
+                                        {item.fullName}
+                                      </h2>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="text-center px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                                  <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
+                                    <span className={`h-1.5 w-1.5 rounded-full ${item.stat == 5522 ? "text-emerald-500" : item.stat == 5462 ? "text-red-500" : "text-blue-500"}bg-emerald-500`}></span>
+
+                                    <h2 className={`text-sm font-normal ${item.stat == 5522 ? "text-emerald-500" : item.stat == 5462 ? "text-red-500" : "text-blue-500"}`}>
+                                      {item.stat == 5522
+                                        ? "Active"
+                                        : item.stat == 5462 ? "Denied" : "Waiting for Installation"}
+                                    </h2>
+                                  </div>
+                                </td>
+                                <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                                  {item.plan_name}
+                                </td>
+                                <td className="text-center px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                                  {item.billing_date}
+                                </td>
+
+                                <td className="text-center px-4 py-4 text-sm whitespace-nowrap">
+                                  {item.stat != 5522 ? null :
+                                    <div className="flex items-center gap-x-6">
+                                      <AcceptPayment
+                                        id={item.account_id}
+                                        name={item.fullName}
+                                        address={item.address}
+                                      />
+                                    </div>
+                                  }
+                                </td>
+                              </tr>
+                            )
+                            )
                           ) : (
                             <tr>
                               <td colSpan="7" className="text-center">

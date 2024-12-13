@@ -5,6 +5,7 @@ const Transactions = () => {
   const [transaction, setTransactions] = useState([]); // Initial state as an array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filteredTransaction, setFilteredTransaction] = useState([]);
 
   // Fetch data from the backend
   const fetchData = async () => {
@@ -18,6 +19,7 @@ const Transactions = () => {
         }
       );
       setTransactions(response.data);
+      setFilteredTransaction(response.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -27,6 +29,7 @@ const Transactions = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
   let i = 0;
   const renderData = [];
   while (i < transaction.length) {

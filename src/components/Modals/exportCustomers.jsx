@@ -18,10 +18,10 @@ const ExportTransaction = () => {
     try {
       setLoading(true);
       setError("");
-      const response = await axios.post(`${window.host}/auth/getTransactions`, {
+      const response = await axios.post(`${window.host}/auth/exportCustomers`, {
         authorizationToken: sessionStorage.getItem("user_id"),
       });
-      setBill(response.data);
+      setBill(response.data.resp);
       console.log(response);
       setLoading(false);
     } catch (error) {
@@ -71,7 +71,7 @@ const ExportTransaction = () => {
         const pageNumber = pdf.internal.getNumberOfPages();
         pdf.text(`${pageNumber}`, 105, 290, null, null, "center"); // Centered at the bottom
       }
-      pdf.save("Sales_report" + Date.now() + ".pdf");
+      pdf.save("CustomerReport" + Date.now() + ".pdf");
       setLoading(false);
     } catch (error) {
       console.error("Error exporting PDF:", error);
@@ -81,34 +81,33 @@ const ExportTransaction = () => {
   };
 
   const renderData = [];
-  const bill_id = [];
   let i = 0;
   let invoicedAmount = 0; // Corrected spelling
   let amount_paid = 0; // Corrected spelling
-  let fullName = "";
-  let address = "";
   while (i < bill.length) {
-    renderData.push(
-      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          {new Date(bill[i].payment_date).toLocaleDateString()}
-        </td>
-        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          {bill[i].payment_id}
-        </td>
-        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          {bill[i].payment_type === "100000001" ? "Cash" : "Xendit"}
-        </td>
-        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          PHP {Number(bill[i].total_paid).toFixed(2)}
-        </td>
-      </tr>
-    );
-    bill_id.push(bill[i].bill_id);
-    invoicedAmount += Number(bill[i].ammount);
-    amount_paid += Number(bill[i].ammount_paid);
-    fullName = `${bill[i].first_name} ${bill[i].last_name}`;
-    address = bill[i].address;
+    if (bill[i].stat != 6201 && bill[i].Payables != null) {
+      renderData.push(
+        <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+          <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+            {bill[i].account_id}
+          </td>
+          <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+            {bill[i].fullName}
+          </td>
+          <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+            {bill[i].address}
+          </td>
+          <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+            PHP {Number(bill[i].Payables).toFixed(2)}
+          </td>
+          <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+            PHP {Number(bill[i].Paid).toFixed(2)}
+          </td>
+        </tr>
+      );
+      amount_paid += Number(bill[i].Paid);
+      invoicedAmount += Number(bill[i].Payables);
+    }
     i++;
   }
 
@@ -116,14 +115,14 @@ const ExportTransaction = () => {
     <>
       <div className="flex justify-end ">
         <button
-          className="ml-auto mr-9 px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+          className="ml-auto mr-9 px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
           onClick={() => {
             console.log("View Statement of Account clicked");
             getBills();
             setShowModal(true);
           }}
         >
-          Export Transactions
+          Generate Customers Data
         </button>
       </div>
       {showModal && (
@@ -191,21 +190,34 @@ const ExportTransaction = () => {
                       </p>
                     </div>
                   </div>
+
+                  <div className="text-2xl font-bold text-gray-600">
+                    Total Payables : PHP {invoicedAmount}.00
+                  </div>
+                  <div className="text-2xl font-bold text-gray-600">
+                    Total Paid : PHP {amount_paid}.00
+                  </div>
+                  <div className="text-2xl font-bold text-gray-600">
+                    Total Balance : PHP {invoicedAmount - amount_paid}.00
+                  </div>
                   <div className="overflow-x-auto">
                     <table className="w-full table-auto border border-gray-300">
                       <thead>
                         <tr className="bg-gray-200">
                           <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
-                            Date
+                            Account Number
                           </th>
                           <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
-                            Transactions Number
+                            Full Name
                           </th>
                           <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
-                            Payment Type
+                            Address
                           </th>
                           <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
-                            Amount
+                            Recievables
+                          </th>
+                          <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Paid
                           </th>
                         </tr>
                       </thead>

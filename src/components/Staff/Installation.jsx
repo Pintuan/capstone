@@ -70,6 +70,7 @@ const Technician = () => {
             accountId={requests.user_id}
             user_id={requests.user_id}
           />
+          <DenyInstallation account_id={requests.user_id} />
         </div>
       </td>
     </tr>
@@ -86,7 +87,7 @@ const Technician = () => {
       </div>
       <div className="flex flex-col mt-6 items-center w-full">
         <div className="w-full">
-          <div className="inline-block w-full py-2 align-middle text-center">
+          <div className="inline-block w-full py-2 mx-4 align-middle text-center">
             <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
               <table className="min-w-full w-full table-fixed">
                 <thead className="bg-gray-50 dark:bg-gray-800">

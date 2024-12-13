@@ -12,7 +12,7 @@ const Notifications_Modal = () => {
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
-  const uploadNotification = async() =>{
+  const uploadNotification = async () => {
     try {
       const response = await axios.post(window.host + "/auth/newNotifications", {
         creator: sessionStorage.getItem(
@@ -23,10 +23,10 @@ const Notifications_Modal = () => {
         start: startDate,
         end: endDate
       });
-      if(response.data.message){
+      if (response.data.message) {
         alert("Notification Created Successfully");
         closeModal();
-      }else{
+      } else {
         alert("Failed to create notification");
       }
     } catch (error) {
@@ -41,7 +41,7 @@ const Notifications_Modal = () => {
         onClick={() => {
           openModal();
         }}
-        className="px-4 py-2 mt-4 ml-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
+        className="my-4 px-4 py-2 mt-4 ml-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
         type="button"
       >
         <span>Create New Notification</span>
@@ -77,34 +77,34 @@ const Notifications_Modal = () => {
               <option value="1655523196">Service Reconnection</option>
             </select>
             <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">Body</label>
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Enter the notification body"
-              className="w-full h-20 px-4 py-2 mt-2 text-gray-800 bg-white border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-4 py-2 mt-2 text-gray-800 bg-white border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
-            />
-          </div>
+              <label className="block text-sm font-medium text-gray-600">Body</label>
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                placeholder="Enter the notification body"
+                className="w-full h-20 px-4 py-2 mt-2 text-gray-800 bg-white border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-600">Start Date</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-2 mt-2 text-gray-800 bg-white border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+              />
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-4 py-2 mt-2 text-gray-800 bg-white border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
-            />
-          </div>
-          
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-600">End Date</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-4 py-2 mt-2 text-gray-800 bg-white border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+              />
+            </div>
+
             <div className="flex justify-end">
               <button
                 type="button"

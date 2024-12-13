@@ -6,7 +6,7 @@ import Image03 from '../../images/user-36-07.jpg';
 import Image04 from '../../images/user-36-08.jpg';
 import Image05 from '../../images/user-36-09.jpg';
 
-function DashboardCard10() {
+function DashboardCard10({ title, data }) {
 
   const customers = [
     {
@@ -54,8 +54,10 @@ function DashboardCard10() {
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-gray-800 shadow-sm rounded-xl">
       <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
-        <h2 className="font-semibold text-gray-800 dark:text-gray-100">Customers</h2>
-      </header>      
+        <h2 className="font-semibold text-gray-800 dark:text-gray-100">{title}<span className="px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full dark:bg-gray-800 dark:text-blue-400">
+          {data.length} user
+        </span> </h2>
+      </header>
       <div className="p-3">
 
         {/* Table */}
@@ -68,38 +70,41 @@ function DashboardCard10() {
                   <div className="font-semibold text-left">Name</div>
                 </th>
                 <th className="p-2 whitespace-nowrap">
-                  <div className="font-semibold text-left">Email</div>
+                  <div className="font-semibold text-left">Address</div>
+                </th>
+                <th className="p-2 whitespace-nowrap">
+                  <div className="font-semibold text-left">Plan</div>
+                </th>
+                <th className="p-2 whitespace-nowrap">
+                  <div className="font-semibold text-left">Due Date</div>
                 </th>
                 <th className="p-2 whitespace-nowrap">
                   <div className="font-semibold text-left">Balance(Php)</div>
-                </th>
-                <th className="p-2 whitespace-nowrap">
-                  <div className="font-semibold text-center">Server Location</div>
                 </th>
               </tr>
             </thead>
             {/* Table body */}
             <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-700/60">
               {
-                customers.map(customer => {
+                data.map(data => {
                   return (
-                    <tr key={customer.id}>
+                    <tr key={data.bill_id}>
                       <td className="p-2 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 shrink-0 mr-2 sm:mr-3">
-                            <img className="rounded-full" src={customer.image} width="40" height="40" alt={customer.name} />
-                          </div>
-                          <div className="font-medium text-gray-800 dark:text-gray-100">{customer.name}</div>
+                          <div className="font-medium text-gray-800 dark:text-gray-100">{data.customer}</div>
                         </div>
                       </td>
                       <td className="p-2 whitespace-nowrap">
-                        <div className="text-left">{customer.email}</div>
+                        <div className="text-left">{data.billing_address}</div>
                       </td>
                       <td className="p-2 whitespace-nowrap">
-                        <div className="text-left font-medium text-green-500">{customer.spent}</div>
+                        <div className="text-left font-medium text-green-500">{data.plan_name}</div>
                       </td>
                       <td className="p-2 whitespace-nowrap">
-                        <div className="text-lg text-center">{customer.location}</div>
+                        <div className="text-left font-medium text-green-500">{new Date(data.due_date).toISOString().split("T")[0]}</div>
+                      </td>
+                      <td className="p-2 whitespace-nowrap">
+                        <div className="text-lg text-center"> ₱{data.ammount}.00</div>
                       </td>
                     </tr>
                   )

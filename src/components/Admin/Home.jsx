@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { chartAreaGradient } from '../../charts/ChartjsConfig';
 import LineChart from '../../charts/LineChart01';
 import DashboardCard04 from '../../partials/dashboard/DashboardCard04';
-import DashboardCard06 from '../../partials/dashboard/DashboardCard06';
+import DashboardCard10 from '../../partials/dashboard/DashboardCard10';
 import SummaryCard from '../../partials/SummaryCard';
 import { hexToRGB, tailwindConfig } from '../../utils/Utils';
 
@@ -21,7 +21,7 @@ import {
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [bills, setBills] = useState([]);
-  const [labels, setLabels] = useState(["San Sebastian", "Palapat", "Sta Elena"]);
+  const [Unpaid, setUnpaid] = useState([]);
   // States for Today
   const [todayTotal, setTodayTotal] = useState(0);
 
@@ -100,6 +100,19 @@ const Home = () => {
     }
   };
 
+  const fetchUnpaid_bill = async () => {
+    try {
+      const response = await axios.post(`${window.host}/auth/getUpaid`, {
+        token: sessionStorage.getItem('3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0')
+      });
+      console.log(response.data.resp);
+      setUnpaid(response.data.resp);
+    }
+    catch (error) {
+      console.error('Error fetching unpaid bill data:', error);
+    }
+  };
+
   const fetchBillsData = async () => {
     try {
       const response = await axios.post(`${window.host}/auth/getBills`, {
@@ -129,6 +142,7 @@ const Home = () => {
   useEffect(() => {
     fetchData();
     fetchBillsData();
+    fetchUnpaid_bill();
   }, []);
 
 
@@ -257,9 +271,8 @@ const Home = () => {
 
         {/* Other Dashboard Cards */}
         <div className="w-full">
-
+          <DashboardCard10 title="Unpaid Customers" data={Unpaid} />
         </div>
-
       </div>
     </main>
   );
