@@ -315,7 +315,7 @@ async function verifyEmail(email) {
   try {
     const query = "SELECT * FROM users WHERE email = $1";
     const results = await queryDatabase(query, [email]);
-    if (results.length === 0) {
+    if (results.length > 0) {
       return true;
     } else {
       return false;
@@ -353,29 +353,43 @@ async function insertLog(userId, action, ipAddress) {
 }
 
 router.post("/forgot-password", async (req, res) => {
-  debugger;
   //generate new password
-  const password = await genId("users", "user_id", 999999999);
-  const newPassword = bcrypt.hash(password, 10);
-  const text = `Password Reset has been Initiated\n\n
-                this is your new Password : ${password}\n
-                we recommend that you change it immediately after the first login\n
-
-                if you didn't do this changes, consider securing your email and password for your security
-            `;
-  const html = `Password Reset has been Initiated\n\n
-                this is your new Password : ${password}\n
-                we recommend that you change it immediately after the first login\n
-
-                if you didn't do this changes, consider securing your email and password for your security
-            `;
-  const query = `UPDATE public.login
-        SET pass_word=$1
-        WHERE account_id= $2;`;
-  const results = await verifyEmail(req.body.email);
-  if (results.length != 0) {
-    const resp = await queryDatabase(query, [newPassword, results[0].user_id]);
+  const email = req.body.email;
+  const query = `select * from users where email = $1`;
+  const results = await verifyEmail(email);
+  if (results) {
+    const resp = await queryDatabase(query, [email]);
     if (resp.length >= 0) {
+      const text = `Password Reset has been Initiated\n\n
+                http://13.211.183.92/forgotPassword?token=${resp[0].user_id}
+
+                if you didn't do this changes, consider securing your email and password for your security
+            `;
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <body class="bg-gray-100">
+        <div class="max-w-lg mx-auto mt-10 bg-white border border-gray-300 rounded-lg shadow-lg">
+          <div class="bg-green-500 text-white text-center py-4 rounded-t-lg">
+            <h1 class="text-xl font-bold">One Konek Account Recovery</h1>
+          </div>
+          <div class="p-6 text-gray-700">
+            <p class="mb-4">Dear User,</p>
+            <p class="mb-4">Account Recovery has been Initiated, Click the Button below to reset your password</p>
+            <a target="_blank" href="http://13.211.183.92/forgotPassword?token=${resp[0].user_id}" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-md font-bold text-sm uppercase">
+              <button>Activate</Button>
+            </a>
+            <p>Thank you for choosing One Konek!</p>
+          </div>
+          <div class="bg-gray-100 text-center py-4 rounded-b-lg text-sm text-gray-500">
+            &copy; 2024 One Konek. All rights reserved.
+          </div>
+        </div>
+      </body>
+      </html>`;
       sendEmail(req.body.email, "Password Recovery", text, html);
 
       return res.status(200).json({
@@ -621,9 +635,14 @@ router.post("/getTransactions", async (req, res) => {
   debugger;
   const authorizationToken = req.body;
   const query = `
-        select p.payment_id, b.stat, b.bill_account_id as "account_id", CONCAT(u.first_name, ' ', u.last_name) as "cashier",p.payment_type,p.payment_date,b.due_date, p.total_paid, pl.plan_name,p.rebate,b.bill_id  from bill b
+        select p.payment_id, b.stat, b.bill_account_id as "account_id", 
+                CONCAT(u.first_name, ' ', u.last_name) as "cashier",
+                CONCAT(c.first_name, ' ', c.last_name) as "customer",
+                p.payment_type,p.payment_date,b.due_date, p.total_paid, pl.plan_name,p.rebate,b.bill_id  from bill b
           left join payments p on b.bill_id = p.bill_id
           left join users u on p.cashier_id = u.user_id
+          left join accounts a on b.bill_account_id = a.account_id
+          left join users c on a.user_id = c.user_id
           left join plans pl on b."plan" = pl.plan_id
           where b.stat != 76522
           order by p.payment_date desc

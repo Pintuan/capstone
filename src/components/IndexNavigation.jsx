@@ -78,7 +78,7 @@ const Navbar = () => {
               Home{" "}
             </Link>
             <Link
-              to="/ContactUs"
+              to="/Inquire"
               className="hover:bg-gray-200 my-2 text-gray-700 transition-colors duration-300 transform dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 dark:hover:bg-gray-700 p-4 rounded-lg mx-1"
             >
               {" "}

@@ -30,6 +30,12 @@ function Customers() {
   useEffect(() => {
     fetchData();
   }, []);
+  function countByStat(data) {
+    return data.reduce((counts, item) => {
+      counts[item.stat] = (counts[item.stat] || 0) + 1;
+      return counts;
+    }, {});
+  }
 
   const handleSearch = (event) => {
     const searchValue = event.target.value;
@@ -63,6 +69,8 @@ function Customers() {
 
   };
 
+
+  const statCounts = countByStat(filteredCustomers);
   return (
     <main className="grow">
       <div className="pl-4 w-full mx-auto">
@@ -105,17 +113,26 @@ function Customers() {
                       }}
                       className=" px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 sm:text-base sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
                       Active
+                      <div className={`text-sm font-medium px-1.5 rounded-full text-green-700 bg-green-500/20`}>
+                        {statCounts['5522']}
+                      </div>
                     </button>
                     <button
                       onClick={() => toggleFilter('6201')}
                       className="px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 sm:text-base sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
                       Waiting for Installation
+                      <div className={`text-sm font-medium px-1.5 rounded-full text-blue-700 bg-blue-500/20`}>
+                        {statCounts['6201']}
+                      </div>
                     </button>
 
                     <button
                       onClick={() => toggleFilter('5462')}
                       className="px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 sm:text-base sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
                       Denied
+                      <div className={`text-sm font-medium px-1.5 rounded-full text-red-700 bg-red-500/20`}>
+                        {statCounts['5462']}
+                      </div>
                     </button>
                   </div>
                   <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">

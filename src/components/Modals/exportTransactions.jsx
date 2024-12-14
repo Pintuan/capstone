@@ -9,6 +9,7 @@ const ExportTransaction = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [bill, setBill] = useState([]);
+  const [filteredBill, setFilteredBill] = useState([]);
   // States for start and end dates
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -22,6 +23,7 @@ const ExportTransaction = () => {
         authorizationToken: sessionStorage.getItem("user_id"),
       });
       setBill(response.data);
+      setFilteredBill(response.data);
       console.log(response);
       setLoading(false);
     } catch (error) {
@@ -80,6 +82,23 @@ const ExportTransaction = () => {
     }
   };
 
+  const convertToMMDDYYYY = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    return `${month}/${day}/${year}`;
+  };
+  const handleFilter = () => {
+    console.log(startDate, endDate);
+    if (!startDate || !endDate) setFilteredBill(bill);
+
+    const filtered = bill.filter((item) => {
+      const itemDate = new Date(item.payment_date);
+      return (
+        itemDate >= new Date(convertToMMDDYYYY(startDate)) && itemDate <= new Date(convertToMMDDYYYY(endDate))
+      );
+    });
+
+    setFilteredBill(filtered);
+  };
   const renderData = [];
   const bill_id = [];
   let i = 0;
@@ -87,28 +106,31 @@ const ExportTransaction = () => {
   let amount_paid = 0; // Corrected spelling
   let fullName = "";
   let address = "";
-  while (i < bill.length) {
+  while (i < filteredBill.length) {
     renderData.push(
       <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
         <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          {new Date(bill[i].payment_date).toLocaleDateString()}
+          {new Date(filteredBill[i].payment_date).toLocaleDateString()}
         </td>
         <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          {bill[i].payment_id}
+          {filteredBill[i].customer}
         </td>
         <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          {bill[i].payment_type === "100000001" ? "Cash" : "Xendit"}
+          {filteredBill[i].payment_id}
         </td>
         <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
-          PHP {Number(bill[i].total_paid).toFixed(2)}
+          {filteredBill[i].payment_type === "100000001" ? "Cash" : "Xendit"}
+        </td>
+        <td className="px-4 py-3 text-sm text-center text-gray-700 whitespace-nowrap">
+          PHP {Number(filteredBill[i].total_paid).toFixed(2)}
         </td>
       </tr>
     );
-    bill_id.push(bill[i].bill_id);
-    invoicedAmount += Number(bill[i].ammount);
-    amount_paid += Number(bill[i].ammount_paid);
-    fullName = `${bill[i].first_name} ${bill[i].last_name}`;
-    address = bill[i].address;
+    bill_id.push(filteredBill[i].bill_id);
+    invoicedAmount += Number(filteredBill[i].ammount);
+    amount_paid += Number(filteredBill[i].total_paid);
+    fullName = `${filteredBill[i].first_name} ${filteredBill[i].last_name}`;
+    address = filteredBill[i].address;
     i++;
   }
 
@@ -167,6 +189,7 @@ const ExportTransaction = () => {
                       className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-gray-900"
                     />
                   </label>
+                  <button onClick={handleFilter}>Filter Data</button>
                 </div>
                 <div
                   ref={componentRef}
@@ -182,6 +205,9 @@ const ExportTransaction = () => {
                       <h1 className="text-2xl font-bold text-gray-800">
                         ONE-KONEK NETWORK AND DATA SOLUTION
                       </h1>
+                      <h1 className="text-2xl font-bold text-gray-800">
+                        TRANSACTIONS REPORT
+                      </h1>
                       <p className="text-gray-600">Company ID: 001</p>
                       <p className="text-gray-600">Tax ID: 343297890000</p>
                       <p className="text-gray-600">0505 Purok 2 Looban</p>
@@ -190,6 +216,13 @@ const ExportTransaction = () => {
                         Hagonoy Bulacan 3002, Philippines
                       </p>
                     </div>
+                    <div>
+                      <p className="text-gray-600">
+                        Coverage Date : {convertToMMDDYYYY(startDate)} - {convertToMMDDYYYY(endDate)}
+                      </p>
+                      <h3 className=" text-xl text-gray-600">Total Ammount : PHP {amount_paid}.00</h3>
+
+                    </div>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full table-auto border border-gray-300">
@@ -197,6 +230,8 @@ const ExportTransaction = () => {
                         <tr className="bg-gray-200">
                           <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
                             Date
+                          </th><th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                            Customer Name
                           </th>
                           <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
                             Transactions Number

@@ -42,7 +42,10 @@ const Transactions = () => {
           {transaction[i].payment_id}
         </td>
         <td scope="col" className="px-4 py-4 font-nunito">
-          {transaction[i].name}
+          {transaction[i].customer}
+        </td>
+        <td scope="col" className="px-4 py-4 font-nunito">
+          {transaction[i].cashier}
         </td>
         <td scope="col" className="px-4 py-4 font-nunito">
           {transaction[i].plan_name}
@@ -96,7 +99,15 @@ const Transactions = () => {
                       className="py-3.5 px-4 text-base font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400 whitespace-nowrap"
                     >
                       <div className="w-full flex justify-center items-center gap-x-3">
-                        <span>Name</span>
+                        <span>Customer</span>
+                      </div>
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 px-4 text-base font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400 whitespace-nowrap"
+                    >
+                      <div className="w-full flex justify-center items-center gap-x-3">
+                        <span>Cashier</span>
                       </div>
                     </th>
 

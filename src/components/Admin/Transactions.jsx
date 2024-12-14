@@ -111,6 +111,14 @@ const Transactions = () => {
                       className="py-3.5 px-4 text-base font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400 whitespace-nowrap"
                     >
                       <div className="w-full flex justify-center items-center gap-x-3">
+                        <span>Customer</span>
+                      </div>
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 px-4 text-base font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400 whitespace-nowrap"
+                    >
+                      <div className="w-full flex justify-center items-center gap-x-3">
                         <span>Cashier</span>
                       </div>
                     </th>
@@ -120,7 +128,7 @@ const Transactions = () => {
                       className="py-3.5 px-4 text-base font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400 whitespace-nowrap"
                     >
                       <div className="w-full flex justify-center items-center gap-x-3">
-                        <span>Plan Name</span>
+                        <span>Payment Type</span>
                       </div>
                     </th>
 
@@ -192,10 +200,13 @@ const Transactions = () => {
                           {item.payment_id}
                         </td>
                         <td scope="col" className="px-4 py-4 font-nunito">
+                          {item.customer}
+                        </td>
+                        <td scope="col" className="px-4 py-4 font-nunito">
                           {item.cashier}
                         </td>
                         <td scope="col" className="px-4 py-4 font-nunito">
-                          {item.plan_name}
+                          {item.payment_type === "100000001" ? "Cash" : "Xendit"}
                         </td>
                         <td scope="col" className="px-4 py-4 font-nunito">
                           {new Date(item.due_date).toISOString().split("T")[0]}
